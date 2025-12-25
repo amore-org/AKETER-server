@@ -33,7 +33,8 @@ dependencyManagement {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation "org.springframework.boot:spring-boot-starter-validation"
-
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
 
 	// Spring AI (OpenAI + Chroma + RAG advisors)
 	implementation "org.springframework.ai:spring-ai-starter-model-openai"

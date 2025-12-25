@@ -8,6 +8,9 @@ spring:
   batch:
     job:
       enabled: false
+    jdbc:
+        platform: mysql
+        initialize-schema: never
 
   jpa:
     hibernate:
@@ -26,6 +29,10 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+
+logging:
+  level:
+    org.springframework.batch: INFO
 
 #    vectorstore:
 #      chroma:
