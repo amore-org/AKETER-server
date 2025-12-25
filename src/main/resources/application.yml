@@ -1,0 +1,38 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${AMORE_DB_HOST:34.50.1.198}:${AMORE_DB_PORT:3306}/${AMORE_DB_NAME:amore}?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=utf8&useUnicode=true
+    username: team_ai_app_user
+    password: ${AMORE_DB_PASSWORD}
+
+  batch:
+    job:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4.1-mini
+          temperature: 0.7
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+#    vectorstore:
+#      chroma:
+#        client:
+#          host: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST:http://localhost}
+#          port: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT:8000}
+#        tenant-name: ${SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME:SpringAiTenant}
+#        database-name: ${SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME:SpringAiDatabase}
+#        collection-name: ${SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME:aketer}
+#        initialize-schema: true

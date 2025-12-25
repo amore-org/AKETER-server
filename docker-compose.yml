@@ -1,0 +1,36 @@
+services:
+  chroma:
+    image: chromadb/chroma:0.5.20
+    container_name: aketer-chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+
+  app:
+    build: .
+    container_name: aketer-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+      AMORE_DB_HOST: "34.50.1.198"
+      AMORE_DB_PORT: "3306"
+      AMORE_DB_NAME: "amore"
+      AMORE_DB_USER: "team_ai_app_user"
+
+      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST: "http://chroma"
+      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT: "8000"
+      SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME: "aketer"
+      SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME: "SpringAiTenant"
+      SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME: "SpringAiDatabase"
+      SPRING_AI_VECTORSTORE_CHROMA_INITIALIZE_SCHEMA: "true"
+
+    depends_on:
+      - chroma
+
+volumes:
+  chroma_data:
