@@ -6,6 +6,7 @@ import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class MessageState extends AgentState {
             return data;
         }
 
-        Map<String, Object> newData = new java.util.HashMap<>(data);
+        Map<String, Object> newData = new HashMap<>(data);
         newData.put(TRACE_ID, UUID.randomUUID().toString());
         return newData;
     }
