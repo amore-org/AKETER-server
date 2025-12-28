@@ -20,6 +20,7 @@ public class MessageGraph {
 
     private final CompiledGraph<MessageState> graph;
     private final GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode;
+    private final RetrieveEthicsPolicyNode retrieveEthicsPolicyNode;
 
     public MessageGraph(DetermineDeliveryStrategyNode determineDeliveryStrategyNode,
                         ValidateDeliveryStrategyNode validateDeliveryStrategyNode,
@@ -28,7 +29,7 @@ public class MessageGraph {
                         ValidateMessageAndToneNode validateMessageAndToneNode,
                         ValidateEthicsPolicyNode validateEthicsPolicyNode,
                         RegenerationNode regenerationNode,
-                        GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode) throws GraphStateException {
+                        GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode, RetrieveEthicsPolicyNode retrieveEthicsPolicyNode) throws GraphStateException {
         graph = new StateGraph<>(MessageState.SCHEMA, MessageState::new)
                 .addNode("determine_delivery_strategy", determineDeliveryStrategyNode)
                 .addNode("validate_delivery_strategy", validateDeliveryStrategyNode)
@@ -36,6 +37,7 @@ public class MessageGraph {
                 .addNode("apply_brand_tone", applyBrandToneNode)
                 .addNode("validate_message_and_tone", validateMessageAndToneNode)
                 .addNode("generate_ethics_policy_keyword", generateEthicsPolicyKeywordNode)
+                .addNode("retrieve_ethics_policy", retrieveEthicsPolicyNode)
                 .addNode("validate_ethics_policy", validateEthicsPolicyNode)
                 .addNode("regeneration", regenerationNode)
 
@@ -57,7 +59,8 @@ public class MessageGraph {
                         },
                         Map.of("retry", "draft_marketing_message",
                                 "next", "generate_ethics_policy_keyword"))
-                .addEdge("generate_ethics_policy_keyword", "validate_ethics_policy")
+                .addEdge("generate_ethics_policy_keyword", "retrieve_ethics_policy")
+                .addEdge("retrieve_ethics_policy", "validate_ethics_policy")
                 .addConditionalEdges("validate_ethics_policy", state -> {
                             String result = state.hasAnyFailures() ? "retry" : "next";
 
@@ -68,6 +71,7 @@ public class MessageGraph {
                 .addEdge("regeneration", "validate_ethics_policy")
                 .compile();
         this.generateEthicsPolicyKeywordNode = generateEthicsPolicyKeywordNode;
+        this.retrieveEthicsPolicyNode = retrieveEthicsPolicyNode;
     }
 
     public CompletableFuture<MessageState> execute(Map<String, Object> inputs) {
