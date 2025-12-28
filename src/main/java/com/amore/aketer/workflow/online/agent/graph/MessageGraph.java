@@ -19,8 +19,6 @@ import static org.bsc.langgraph4j.GraphDefinition.START;
 public class MessageGraph {
 
     private final CompiledGraph<MessageState> graph;
-    private final GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode;
-    private final RetrieveEthicsPolicyNode retrieveEthicsPolicyNode;
 
     public MessageGraph(DetermineDeliveryStrategyNode determineDeliveryStrategyNode,
                         ValidateDeliveryStrategyNode validateDeliveryStrategyNode,
@@ -29,7 +27,8 @@ public class MessageGraph {
                         ValidateMessageAndToneNode validateMessageAndToneNode,
                         ValidateEthicsPolicyNode validateEthicsPolicyNode,
                         RegenerationNode regenerationNode,
-                        GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode, RetrieveEthicsPolicyNode retrieveEthicsPolicyNode) throws GraphStateException {
+                        GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode,
+                        RetrieveEthicsPolicyNode retrieveEthicsPolicyNode) throws GraphStateException {
         graph = new StateGraph<>(MessageState.SCHEMA, MessageState::new)
                 .addNode("determine_delivery_strategy", determineDeliveryStrategyNode)
                 .addNode("validate_delivery_strategy", validateDeliveryStrategyNode)
@@ -68,10 +67,8 @@ public class MessageGraph {
                         },
                         Map.of("retry", "regeneration",
                                 "next", END))
-                .addEdge("regeneration", "validate_ethics_policy")
+                .addEdge("regeneration", "generate_ethics_policy_keyword")
                 .compile();
-        this.generateEthicsPolicyKeywordNode = generateEthicsPolicyKeywordNode;
-        this.retrieveEthicsPolicyNode = retrieveEthicsPolicyNode;
     }
 
     public CompletableFuture<MessageState> execute(Map<String, Object> inputs) {

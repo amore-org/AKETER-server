@@ -21,8 +21,8 @@ public class MessageState extends AgentState {
 	public static final String SEND_TIME = "sendTime";
 
 	// 메시지 생성 노드 결과물
-	public static final String TITLE = "title";
-	public static final String MESSAGE = "message";
+	public static final String MESSAGE_TITLE = "messageTitle";
+	public static final String MESSAGE_BODY = "messageBody";
 
 	// docs
 	public static final String PRODUCT_INFORMATION = "productInformation";
@@ -43,8 +43,8 @@ public class MessageState extends AgentState {
 		Map.entry(PURPOSE, Channels.base(() -> "")),
 		Map.entry(CHANNEL, Channels.base(() -> "")),
 		Map.entry(SEND_TIME, Channels.base(() -> "")),
-		Map.entry(TITLE, Channels.base(() -> "")),
-		Map.entry(MESSAGE, Channels.base(() -> "")),
+		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
+		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
 		Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
 		Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
 		Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
@@ -84,12 +84,12 @@ public class MessageState extends AgentState {
     }
 
     // Getters - 메시지 생성 노드 결과물
-    public String getTitle() {
-        return this.<String>value(TITLE).orElse(null);
+    public String getMessageTitle() {
+        return this.<String>value(MESSAGE_TITLE).orElse(null);
     }
 
-    public String getMessage() {
-        return this.<String>value(MESSAGE).orElse(null);
+    public String getMessageBody() {
+        return this.<String>value(MESSAGE_BODY).orElse(null);
     }
 
     // Getters - 문서 정보
