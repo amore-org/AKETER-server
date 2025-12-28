@@ -28,10 +28,6 @@ public class StubMessageGenerateWorkflow implements MessageGenerateWorkflow {
 
     @Override
     public DraftResult regenerate(Long draftId) {
-        return DraftResult.builder()
-                .title("[STUB] 재생성 draftId=" + draftId)
-                .body("[STUB] regenerate 결과")
-                .traceId(UUID.randomUUID().toString())
-                .build();
+        return null;
     }
 }
