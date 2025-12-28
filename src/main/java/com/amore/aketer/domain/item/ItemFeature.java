@@ -1,5 +1,6 @@
 package com.amore.aketer.domain.item;
 
+import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,7 +18,7 @@ import lombok.*;
                 @Index(name = "idx_item_feature_category", columnList = "primary_category")
         }
 )
-public class ItemFeature {
+public class ItemFeature extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +36,6 @@ public class ItemFeature {
     @Column(name = "target_age_segment", length = 20)
     private AgeBand targetAgeSegment;
 
-    // B안: 타겟 나이 범위
     @Column(name = "target_age_min")
     private Integer targetAgeMin;
 
