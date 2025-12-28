@@ -1,9 +1,9 @@
-package com.amore.aketer.domain.user;
+package com.amore.aketer.domain.persona;
 
+import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
-
 
 @Getter
 @Setter
@@ -12,23 +12,32 @@ import lombok.*;
 @Builder
 @Entity
 @Table(
-        name = "user_feature",
-        indexes = {
-                @Index(name = "idx_user_feature_user_key", columnList = "user_key", unique = true)
-        }
+        name = "persona_representative_feature",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_persona_rank", columnNames = {"persona_id", "sample_rank"}
+        ),
+        indexes = @Index(name = "idx_prf_persona", columnList = "persona_id")
 )
-public class UserFeature {
+public class PersonaRepresentativeFeature extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 프로토타입용 유저 식별자(아모레몰 userId 등)
-    @Column(name = "user_key", nullable = false, length = 64)
-    private String userKey;
+    // 소속 페르소나
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "persona_id", nullable = false)
+    private Persona persona;
 
-    @Column(name = "name", nullable = false, length = 50)
-    private String name;
+    // 대표 샘플 순위
+    @Column(name = "sample_rank", nullable = false)
+    private int rank;
+
+    // UI/로그용 라벨 (ex: "REP_01", "대표#1")
+    @Column(name = "sample_label", length = 50)
+    private String sampleLabel;
+
+    /* ===== 대표 샘플 feature 필드들 ===== */
 
     @Convert(converter = AgeBandConverter.class)
     @Column(name = "age_band", length = 20)
