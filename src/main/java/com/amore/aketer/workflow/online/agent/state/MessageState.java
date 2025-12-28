@@ -14,22 +14,36 @@ import java.util.UUID;
 public class MessageState extends AgentState {
 
     // State Keys
-    public static final String SRCH_DT = "srchDt";
     public static final String PERSONA_ID = "personaId";
+    public static final String PRODUCT = "product";
     public static final String BRAND = "brand";
     public static final String PURPOSE = "purpose";
     public static final String CHANNEL = "channel";
+    public static final String SEND_TIME = "sendTime";
     public static final String TITLE = "title";
     public static final String MESSAGE = "message";
     public static final String BRAND_GUIDELINES = "brandGuidelines";
+    public static final String IS_REFRESH = "isRefresh";
     public static final String VALIDATION_RESULT = "validationResult";
     public static final String REGENERATION_ATTEMPT = "regenerationAttempt";
     public static final String FAILURE_REASONS = "failureReasons";
     public static final String TRACE_ID = "traceId";
 
     // Schema Definition
-    public static final Map<String, Channel<?>> SCHEMA = Map.of(
-            FAILURE_REASONS, Channels.appender(ArrayList::new)
+    public static final Map<String, Channel<?>> SCHEMA = Map.ofEntries(
+            Map.entry(PERSONA_ID, Channels.base(() -> 0L)),
+            Map.entry(PRODUCT, Channels.base(() -> "")),
+            Map.entry(BRAND, Channels.base(() -> "")),
+            Map.entry(PURPOSE, Channels.base(() -> "")),
+            Map.entry(CHANNEL, Channels.base(() -> "")),
+            Map.entry(SEND_TIME, Channels.base(() -> "")),
+            Map.entry(TITLE, Channels.base(() -> "")),
+            Map.entry(MESSAGE, Channels.base(() -> "")),
+            Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
+            Map.entry(IS_REFRESH, Channels.base(() -> false)),
+            Map.entry(VALIDATION_RESULT, Channels.base(() -> "")),
+            Map.entry(REGENERATION_ATTEMPT, Channels.base(() -> 0)),
+            Map.entry(FAILURE_REASONS, Channels.appender(ArrayList::new))
     );
 
     public MessageState(Map<String, Object> initData) {
@@ -47,12 +61,12 @@ public class MessageState extends AgentState {
     }
 
     // Getters
-    public String getSrchDt() {
-        return this.<String>value(SRCH_DT).orElse(null);
-    }
-
     public Long getPersonaId() {
         return this.<Long>value(PERSONA_ID).orElse(null);
+    }
+
+    public String getProduct() {
+        return this.<String>value(PRODUCT).orElse(null);
     }
 
     public String getBrand() {
@@ -67,6 +81,10 @@ public class MessageState extends AgentState {
         return this.<String>value(CHANNEL).orElse(null);
     }
 
+    public String getSendTime() {
+        return this.<String>value(SEND_TIME).orElse(null);
+    }
+
     public String getTitle() {
         return this.<String>value(TITLE).orElse(null);
     }
@@ -77,6 +95,10 @@ public class MessageState extends AgentState {
 
     public String getBrandGuidelines() {
         return this.<String>value(BRAND_GUIDELINES).orElse(null);
+    }
+
+    public boolean getIsRefresh() {
+        return this.<Boolean>value(IS_REFRESH).orElse(false);
     }
 
     public ValidationResult getValidationResult() {
