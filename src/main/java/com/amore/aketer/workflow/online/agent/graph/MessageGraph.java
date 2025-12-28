@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.CompiledGraph;
 import org.bsc.langgraph4j.GraphStateException;
 import org.bsc.langgraph4j.StateGraph;
+import org.bsc.langgraph4j.action.AsyncEdgeAction;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -77,11 +78,8 @@ public class MessageGraph {
 
                 // 발송 채널 적합성 검증 노드 (검증 결과: 실패) -> 최적 발송 채널 선정 노드
                 //                      (검증 결과: 성공) -> 마케팅 메시지 생성 노드
-                .addConditionalEdges("validate_delivery_strategy", state -> {
-                            String result = state.hasAnyFailures() ? "retry" : "next";
-
-                            return CompletableFuture.completedFuture(result);
-                        },
+                .addConditionalEdges("validate_delivery_strategy",
+                        strategyRoute(),
                         Map.of("retry", "determine_delivery_strategy",
                                 "next", "draft_marketing_message"))
 
@@ -93,11 +91,8 @@ public class MessageGraph {
 
                 // 메시지, 브랜드 톤 적합성 검증 노드 (검증 결과: 실패) -> 마케팅 메시지 생성 노드
                 //                            (검증 결과: 성공) -> 윤리 강령 검색 키워드 추천 노드
-                .addConditionalEdges("validate_message_and_tone", state -> {
-                            String result = state.hasAnyFailures() ? "retry" : "next";
-
-                            return CompletableFuture.completedFuture(result);
-                        },
+                .addConditionalEdges("validate_message_and_tone",
+                        messageRoute(),
                         Map.of("retry", "draft_marketing_message",
                                 "next", "generate_ethics_policy_keyword"))
 
@@ -109,17 +104,41 @@ public class MessageGraph {
 
                 // 메시지 윤리 강령 위반 검증 노드 (검증 결과: 실패) -> 메시지 수정 노드
                 //                          (검증 결과: 성공) -> END
-                .addConditionalEdges("validate_ethics_policy", state -> {
-                            String result = state.hasAnyFailures() ? "retry" : "next";
-
-                            return CompletableFuture.completedFuture(result);
-                        },
+                .addConditionalEdges("validate_ethics_policy",
+                        ethicsRoute(),
                         Map.of("retry", "regeneration",
                                 "next", END))
 
                 // 메시지 수정 노드 -> 윤리 강령 검색 키워드 추천 노드
                 .addEdge("regeneration", "generate_ethics_policy_keyword")
                 .compile();
+    }
+
+    // 발송 채널 적합성 검증 노드 분기 조건
+    private AsyncEdgeAction<MessageState> strategyRoute() {
+        return state -> {
+            String result = state.hasAnyFailures() ? "retry" : "next";
+
+            return CompletableFuture.completedFuture(result);
+        };
+    }
+
+    // 메시지, 브랜드 톤 적합성 검증 노드 분기 조건
+    private AsyncEdgeAction<MessageState> messageRoute() {
+        return state -> {
+            String result = state.hasAnyFailures() ? "retry" : "next";
+
+            return CompletableFuture.completedFuture(result);
+        };
+    }
+
+    // 메시지 윤리 강령 위반 검증 노드 분기 조건
+    private AsyncEdgeAction<MessageState> ethicsRoute() {
+        return state -> {
+            String result = state.hasAnyFailures() ? "retry" : "next";
+
+            return CompletableFuture.completedFuture(result);
+        };
     }
 
     public CompletableFuture<MessageState> execute(Map<String, Object> inputs) {
