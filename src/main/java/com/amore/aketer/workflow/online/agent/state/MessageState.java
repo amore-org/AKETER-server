@@ -27,6 +27,7 @@ public class MessageState extends AgentState {
 	// docs
 	public static final String PRODUCT_INFORMATION = "productInformation";
 	public static final String BRAND_GUIDELINES = "brandGuidelines";
+    public static final String ETHICS_POLICY_KEYWORD = "ethicsPolicyKeyword";
 	public static final String ETHICS_POLICY_GUIDELINES = "ethicsPolicyGuidelines";
 
 	// Validation failure reasons
@@ -98,6 +99,10 @@ public class MessageState extends AgentState {
 
     public String getBrandGuidelines() {
         return this.<String>value(BRAND_GUIDELINES).orElse(null);
+    }
+
+    public String getEthicsPolicyKeyword() {
+        return this.<String>value(ETHICS_POLICY_KEYWORD).orElse(null);
     }
 
     public String getEthicsPolicyGuidelines() {
