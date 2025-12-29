@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
         @Index(name = "idx_msg_res_status", columnList = "status")
 })
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,4 +47,28 @@ public class MessageReservation extends BaseEntity {
     @Version
     @Column(name = "version")
     private Long version;
+
+    public void pending() {
+        this.status = MessageStatus.PENDING;
+    }
+
+    public void complete() {
+        this.status = MessageStatus.COMPLETED;
+    }
+
+    public void fail(boolean retryable) {
+        if (retryable && this.retryCount < 3) {
+            this.retryCount++;
+            this.scheduledAt = LocalDateTime.now().plusMinutes(5); // 5분 뒤 재시도
+            this.status = MessageStatus.READY;
+        } else {
+            this.status = MessageStatus.FAILED;
+        }
+    }
+
+    public void cancel() {
+        if (this.status == MessageStatus.READY) {
+            this.status = MessageStatus.CANCELED;
+        }
+    }
 }

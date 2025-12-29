@@ -19,6 +19,27 @@ spring:
       hibernate:
         format_sql: true
 
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 10
+        retry:
+          enabled: false
+        default-requeue-rejected: false
+
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 100
+
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -29,6 +50,28 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+
+aketer:
+  messaging:
+    scheduler:
+      fixed-delay: 30000
+      batch-size: 100
+    retry:
+      max-attempts: 3
+      initial-delay: 60000
+      multiplier: 2.0
+
+  slack:
+    webhook-url: ${SLACK_WEBHOOK_URL}
+    enabled: ${SLACK_ENABLED:true}
+
+  external:
+    kakao:
+      api-url: ${KAKAO_API_URL:https://api.kakao.com}
+      api-key: ${KAKAO_API_KEY:mock-key}
+    sms:
+      api-url: ${SMS_API_URL:https://api.sms-provider.com}
+      api-key: ${SMS_API_KEY:mock-key}
 
 logging:
   level:
