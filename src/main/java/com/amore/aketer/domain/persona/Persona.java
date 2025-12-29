@@ -1,6 +1,7 @@
 package com.amore.aketer.domain.persona;
 
 import com.amore.aketer.domain.common.BaseEntity;
+import com.amore.aketer.domain.message.Message;
 import com.amore.aketer.domain.message.MessageReservation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,14 +32,14 @@ public class Persona extends BaseEntity {
     @Column(name="member_count")
     private Integer memberCount;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "message_id", unique = true)
+    private Message message;
+
     // 대표 N명 feature (rank 오름차순)
     @OneToMany(mappedBy = "persona", fetch = FetchType.LAZY,
             cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("rank asc")
     @Builder.Default
     private List<PersonaRepresentativeFeature> representativeFeatures = new ArrayList<>();
-
-    @OneToMany(mappedBy = "persona", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<MessageReservation> reservations = new ArrayList<>();
 }

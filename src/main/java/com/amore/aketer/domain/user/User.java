@@ -26,7 +26,6 @@ public class User extends BaseEntity {
     @Column(name = "name", length = 50)
     private String name;
 
-    // 배치가 나중에 매핑할 수 있도록 nullable 허용
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "persona_id")
     private Persona persona;
