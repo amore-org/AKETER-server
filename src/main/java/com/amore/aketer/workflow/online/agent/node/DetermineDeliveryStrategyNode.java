@@ -97,12 +97,10 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                 .call()
                 .entity(converter);
 
-        // TODO: 발송 채널, 시간 추천 이유 DB 삽입 로직
-        // String reason = response.reason();
-
         return CompletableFuture.completedFuture(Map.of(
                 MessageState.CHANNEL, response.channel().name(),
-                MessageState.SEND_TIME, parseTime(response.sendTime())
+                MessageState.SEND_TIME, parseTime(response.sendTime()),
+                MessageState.STRATEGY_REASON, response.reason()
         ));
     }
 
