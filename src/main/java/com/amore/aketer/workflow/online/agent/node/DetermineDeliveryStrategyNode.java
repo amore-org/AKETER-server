@@ -20,8 +20,9 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageState> {
 
-    private final ChatClient chatClient;
     private static final ZoneId KST_ZONE = ZoneId.of("Asia/Seoul");
+
+    private final ChatClient chatClient;
 
     /**
      * LLM으로부터 응답받은 발송 전략 결과를 구조화하기 위한 레코드입니다.
