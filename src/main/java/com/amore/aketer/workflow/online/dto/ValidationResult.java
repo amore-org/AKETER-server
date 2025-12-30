@@ -9,7 +9,6 @@ import java.util.List;
  * 윤리 강령 검증 결과
  */
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

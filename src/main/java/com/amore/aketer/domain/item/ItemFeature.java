@@ -2,35 +2,28 @@ package com.amore.aketer.domain.item;
 
 import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(
-        name = "item_feature",
-        indexes = {
-                @Index(name = "idx_item_feature_item_name", columnList = "item_name"),
-                @Index(name = "idx_item_feature_category", columnList = "primary_category")
-        }
-)
+@Table(name = "item_feature", indexes = {
+        @Index(name = "idx_item_feature_category", columnList = "primary_category")
+})
 public class ItemFeature extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 제품명
-    @Column(name = "item_name", nullable = false, length = 200)
-    private String itemName;
-
-    // 메타데이터 경로(브랜드 톤/문서 묶음 경로 or URL)
-    @Column(name = "meta_path", nullable = false, length = 500)
-    private String metaPath; // ex) /amore/hera or https://...
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @MapsId
+    @JoinColumn(name = "item_id", nullable = false, unique = true)
+    private Item item;
 
     @Convert(converter = AgeBandConverter.class)
     @Column(name = "target_age_segment", length = 20)
