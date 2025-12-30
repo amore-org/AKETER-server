@@ -4,6 +4,7 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public class MessageState extends AgentState {
 	// 적절한 채널, 시간 정하는 노드 결과물
 	public static final String CHANNEL = "channel";
 	public static final String SEND_TIME = "sendTime";
+    public static final String STRATEGY_REASON = "strategyReason";
 
 	// 메시지 생성 노드 결과물
 	public static final String MESSAGE_TITLE = "messageTitle";
@@ -29,6 +31,9 @@ public class MessageState extends AgentState {
 	public static final String BRAND_GUIDELINES = "brandGuidelines";
     public static final String ETHICS_POLICY_KEYWORD = "ethicsPolicyKeyword";
 	public static final String ETHICS_POLICY_GUIDELINES = "ethicsPolicyGuidelines";
+
+    // validation
+    public static final String VALIDATION = "validation";
 
 	// Validation failure reasons
 	public static final String DELIVERY_STRATEGY_FAILURE_REASONS = "deliveryStrategyFailureReasons";
@@ -42,12 +47,14 @@ public class MessageState extends AgentState {
 		Map.entry(BRAND, Channels.base(() -> "")),
 		Map.entry(PURPOSE, Channels.base(() -> "")),
 		Map.entry(CHANNEL, Channels.base(() -> "")),
-		Map.entry(SEND_TIME, Channels.base(() -> "")),
+		Map.entry(SEND_TIME, Channels.base(() -> LocalDateTime.MIN)),
+        Map.entry(STRATEGY_REASON, Channels.base(() -> "")),
 		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
 		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
 		Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
 		Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
 		Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
+        Map.entry(VALIDATION, Channels.base(() -> "")),
 		Map.entry(DELIVERY_STRATEGY_FAILURE_REASONS, Channels.appender(ArrayList::new)),
 		Map.entry(MESSAGE_FAILURE_REASONS, Channels.appender(ArrayList::new)),
 		Map.entry(ETHICS_FAILURE_REASONS, Channels.appender(ArrayList::new))
@@ -79,8 +86,12 @@ public class MessageState extends AgentState {
         return this.<String>value(CHANNEL).orElse(null);
     }
 
-    public String getSendTime() {
-        return this.<String>value(SEND_TIME).orElse(null);
+    public LocalDateTime getSendTime() {
+        return this.<LocalDateTime>value(SEND_TIME).orElse(null);
+    }
+
+    public String getStrategyReason() {
+        return this.<String>value(STRATEGY_REASON).orElse(null);
     }
 
     // Getters - 메시지 생성 노드 결과물
@@ -109,6 +120,11 @@ public class MessageState extends AgentState {
         return this.<String>value(ETHICS_POLICY_GUIDELINES).orElse(null);
     }
 
+    // Getters - 검증 성공 여부
+    public String getValidation() {
+        return this.<String>value(VALIDATION).orElse(null);
+    }
+
     // Getters - 검증 실패 사유
     public List<String> getDeliveryStrategyFailureReasons() {
         return this.<List<String>>value(DELIVERY_STRATEGY_FAILURE_REASONS).orElse(new ArrayList<>());
@@ -120,12 +136,5 @@ public class MessageState extends AgentState {
 
     public List<String> getEthicsFailureReasons() {
         return this.<List<String>>value(ETHICS_FAILURE_REASONS).orElse(new ArrayList<>());
-    }
-
-    // Helper Methods
-    public boolean hasAnyFailures() {
-        return !getDeliveryStrategyFailureReasons().isEmpty()
-            || !getMessageFailureReasons().isEmpty()
-            || !getEthicsFailureReasons().isEmpty();
     }
 }
