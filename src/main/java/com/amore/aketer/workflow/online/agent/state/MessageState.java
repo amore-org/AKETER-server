@@ -47,7 +47,7 @@ public class MessageState extends AgentState {
 		Map.entry(BRAND, Channels.base(() -> "")),
 		Map.entry(PURPOSE, Channels.base(() -> "")),
 		Map.entry(CHANNEL, Channels.base(() -> "")),
-		Map.entry(SEND_TIME, Channels.base(() -> null)),
+		Map.entry(SEND_TIME, Channels.base(() -> LocalDateTime.MIN)),
         Map.entry(STRATEGY_REASON, Channels.base(() -> "")),
 		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
 		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
