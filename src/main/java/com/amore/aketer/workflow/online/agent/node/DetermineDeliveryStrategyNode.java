@@ -4,7 +4,6 @@ import com.amore.aketer.domain.enums.ChannelType;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.converter.BeanOutputConverter;
@@ -18,7 +17,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageState> {
 
