@@ -49,7 +49,7 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
         String product = state.getProduct();
         String productInfo = state.getProductInformation();
         String channel = state.getChannel();
-        String sendTime = state.getSendTime();
+        String sendTime = state.getSendTime().toString();
         String strategyReason = state.getStrategyReason();
 
         //==LLM 응답 구조화==/
