@@ -2,7 +2,7 @@ package com.amore.aketer.workflow.online.dto;
 
 import lombok.*;
 
-@Getter @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

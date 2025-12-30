@@ -2,7 +2,7 @@ package com.amore.aketer.api.message.dto;
 
 import lombok.*;
 
-@Getter @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
