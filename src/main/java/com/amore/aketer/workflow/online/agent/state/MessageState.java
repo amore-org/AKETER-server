@@ -4,6 +4,7 @@ import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ public class MessageState extends AgentState {
 	// 적절한 채널, 시간 정하는 노드 결과물
 	public static final String CHANNEL = "channel";
 	public static final String SEND_TIME = "sendTime";
+    public static final String STRATEGY_REASON = "strategyReason";
 
 	// 메시지 생성 노드 결과물
 	public static final String MESSAGE_TITLE = "messageTitle";
@@ -45,7 +47,8 @@ public class MessageState extends AgentState {
 		Map.entry(BRAND, Channels.base(() -> "")),
 		Map.entry(PURPOSE, Channels.base(() -> "")),
 		Map.entry(CHANNEL, Channels.base(() -> "")),
-		Map.entry(SEND_TIME, Channels.base(() -> "")),
+		Map.entry(SEND_TIME, Channels.base(() -> LocalDateTime.MIN)),
+        Map.entry(STRATEGY_REASON, Channels.base(() -> "")),
 		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
 		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
 		Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
@@ -83,8 +86,12 @@ public class MessageState extends AgentState {
         return this.<String>value(CHANNEL).orElse(null);
     }
 
-    public String getSendTime() {
-        return this.<String>value(SEND_TIME).orElse(null);
+    public LocalDateTime getSendTime() {
+        return this.<LocalDateTime>value(SEND_TIME).orElse(null);
+    }
+
+    public String getStrategyReason() {
+        return this.<String>value(STRATEGY_REASON).orElse(null);
     }
 
     // Getters - 메시지 생성 노드 결과물
