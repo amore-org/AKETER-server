@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -54,11 +55,23 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
         String persona = state.getPersona();
         String product = state.getProduct();
         String productInfo = state.getProductInformation();
+        List<String> failureReasons = state.getDeliveryStrategyFailureReasons();
 
+        // 서버 시간과 관계없이 한국 시간(KST) 기준으로 현재 시간 생성
         String now = LocalDateTime.now(KST_ZONE).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         //==LLM 응답 구조화==/
         BeanOutputConverter<DeliveryStrategyResponse> converter = new BeanOutputConverter<>(DeliveryStrategyResponse.class);
+
+        //==실패 사유가 있을 경우 프롬프트에 추가==//
+        StringBuilder feedbackPrompt = new StringBuilder();
+        if (!failureReasons.isEmpty()) {
+            feedbackPrompt.append("\n[이전 시도 실패 사유 (반드시 반영하여 개선할 것)]\n");
+            for (String reason : failureReasons) {
+                feedbackPrompt.append("- ").append(reason).append("\n");
+            }
+            feedbackPrompt.append("위 실패 사유를 분석하여, 동일한 문제가 발생하지 않도록 전략을 수정해.\n");
+        }
 
         //==프롬프트==//
         String prompt = String.format("""
@@ -80,6 +93,8 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                         2. 상품명뿐만 아니라 **상세 정보(가격대, 카테고리, 특징 등)**를 심층적으로 분석하여 상품의 관여도(저관여/고관여)와 구매 결정 요인을 파악해.
                         3. 발송 시간은 **현재 시간(%s) 이후**여야 해. 만약 현재 시간이 발송 가능 시간이 아니라면, 가장 가까운 발송 가능 시간을 찾아.
                         
+                        %s
+                        
                         [출력 요구사항]
                         - sendTime은 반드시 **ISO 8601 형식**을 지켜줘. (예: 2025-12-30T14:00:00+09:00)
                         - reason에는 선택한 채널과 시간이 왜 구매 전환에 효과적인지 논리적으로 설명해. 페르소나와 상품 정보 간의 연관성을 반드시 포함해. (반드시 한국어로 작성할 것)
@@ -89,7 +104,7 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                         상품 상세 정보: %s
                         
                         {format}
-                        """, now, persona, product, productInfo);
+                        """, now, feedbackPrompt, persona, product, productInfo);
 
         //==LLM 사용==//
         DeliveryStrategyResponse response = chatClient.prompt()
