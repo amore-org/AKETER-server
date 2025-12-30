@@ -30,6 +30,9 @@ public class MessageState extends AgentState {
     public static final String ETHICS_POLICY_KEYWORD = "ethicsPolicyKeyword";
 	public static final String ETHICS_POLICY_GUIDELINES = "ethicsPolicyGuidelines";
 
+    // validation
+    public static final String VALIDATION = "validation";
+
 	// Validation failure reasons
 	public static final String DELIVERY_STRATEGY_FAILURE_REASONS = "deliveryStrategyFailureReasons";
 	public static final String MESSAGE_FAILURE_REASONS = "messageFailureReasons";
@@ -48,6 +51,7 @@ public class MessageState extends AgentState {
 		Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
 		Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
 		Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
+        Map.entry(VALIDATION, Channels.base(() -> "")),
 		Map.entry(DELIVERY_STRATEGY_FAILURE_REASONS, Channels.appender(ArrayList::new)),
 		Map.entry(MESSAGE_FAILURE_REASONS, Channels.appender(ArrayList::new)),
 		Map.entry(ETHICS_FAILURE_REASONS, Channels.appender(ArrayList::new))
@@ -109,6 +113,11 @@ public class MessageState extends AgentState {
         return this.<String>value(ETHICS_POLICY_GUIDELINES).orElse(null);
     }
 
+    // Getters - 검증 성공 여부
+    public String getValidation() {
+        return this.<String>value(VALIDATION).orElse(null);
+    }
+
     // Getters - 검증 실패 사유
     public List<String> getDeliveryStrategyFailureReasons() {
         return this.<List<String>>value(DELIVERY_STRATEGY_FAILURE_REASONS).orElse(new ArrayList<>());
@@ -120,12 +129,5 @@ public class MessageState extends AgentState {
 
     public List<String> getEthicsFailureReasons() {
         return this.<List<String>>value(ETHICS_FAILURE_REASONS).orElse(new ArrayList<>());
-    }
-
-    // Helper Methods
-    public boolean hasAnyFailures() {
-        return !getDeliveryStrategyFailureReasons().isEmpty()
-            || !getMessageFailureReasons().isEmpty()
-            || !getEthicsFailureReasons().isEmpty();
     }
 }

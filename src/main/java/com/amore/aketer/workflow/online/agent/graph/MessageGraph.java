@@ -80,8 +80,8 @@ public class MessageGraph {
                 //                      (검증 결과: 성공) -> 마케팅 메시지 생성 노드
                 .addConditionalEdges("validate_delivery_strategy",
                         strategyRoute(),
-                        Map.of("retry", "determine_delivery_strategy",
-                                "next", "draft_marketing_message"))
+                        Map.of("fail", "determine_delivery_strategy",
+                                "pass", "draft_marketing_message"))
 
                 // 마케팅 메시지 생성 노드 -> 브랜드 톤 적용 노드
                 .addEdge("draft_marketing_message", "apply_brand_tone")
@@ -93,8 +93,8 @@ public class MessageGraph {
                 //                            (검증 결과: 성공) -> 윤리 강령 검색 키워드 추천 노드
                 .addConditionalEdges("validate_message_and_tone",
                         messageRoute(),
-                        Map.of("retry", "draft_marketing_message",
-                                "next", "generate_ethics_policy_keyword"))
+                        Map.of("fail", "draft_marketing_message",
+                                "pass", "generate_ethics_policy_keyword"))
 
                 // 윤리 강령 검색 키워드 추천 노드 -> 윤리 강령 검색 노드
                 .addEdge("generate_ethics_policy_keyword", "retrieve_ethics_policy")
@@ -106,8 +106,8 @@ public class MessageGraph {
                 //                          (검증 결과: 성공) -> END
                 .addConditionalEdges("validate_ethics_policy",
                         ethicsRoute(),
-                        Map.of("retry", "regeneration",
-                                "next", END))
+                        Map.of("fail", "regeneration",
+                                "pass", END))
 
                 // 메시지 수정 노드 -> 윤리 강령 검색 키워드 추천 노드
                 .addEdge("regeneration", "generate_ethics_policy_keyword")
@@ -117,7 +117,7 @@ public class MessageGraph {
     // 발송 채널 적합성 검증 노드 분기 조건
     private AsyncEdgeAction<MessageState> strategyRoute() {
         return state -> {
-            String result = state.hasAnyFailures() ? "retry" : "next";
+            String result = state.getValidation();
 
             return CompletableFuture.completedFuture(result);
         };
@@ -126,7 +126,7 @@ public class MessageGraph {
     // 메시지, 브랜드 톤 적합성 검증 노드 분기 조건
     private AsyncEdgeAction<MessageState> messageRoute() {
         return state -> {
-            String result = state.hasAnyFailures() ? "retry" : "next";
+            String result = state.getValidation();
 
             return CompletableFuture.completedFuture(result);
         };
@@ -135,7 +135,7 @@ public class MessageGraph {
     // 메시지 윤리 강령 위반 검증 노드 분기 조건
     private AsyncEdgeAction<MessageState> ethicsRoute() {
         return state -> {
-            String result = state.hasAnyFailures() ? "retry" : "next";
+            String result = state.getValidation();
 
             return CompletableFuture.completedFuture(result);
         };
