@@ -36,4 +36,7 @@ public class Item extends BaseEntity {
 
     @OneToOne(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private ItemFeature feature;
+
+    @OneToOne(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private ItemDetail detail;
 }

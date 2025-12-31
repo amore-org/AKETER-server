@@ -39,6 +39,18 @@ public class ItemFeature extends BaseEntity {
     @Column(name = "primary_category", length = 40)
     private ItemCategory primaryCategory;
 
+    @Lob
+    @Column(name="profile_text")
+    private String profileText;
+
+    // 제품 성분 텍스트
+    @Column(name = "ingredients_doc", length = 500)
+    private String ingredientsDoc;
+
+    // 제품 USP 텍스트
+    @Column(name = "usp_doc", length = 500)
+    private String uspDoc;
+
     // 제품 성분 텍스트 파일 경로
     @Column(name = "ingredients_doc_path", length = 500)
     private String ingredientsDocPath;

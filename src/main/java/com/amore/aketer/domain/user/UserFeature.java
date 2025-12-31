@@ -1,7 +1,9 @@
-package com.amore.aketer.domain.persona;
+
+package com.amore.aketer.domain.user;
 
 import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.*;
+import com.amore.aketer.domain.persona.Persona;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,30 +15,34 @@ import java.time.LocalDate;
 @Builder
 @Entity
 @Table(
-        name = "persona_representative_feature",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_persona_rank", columnNames = {"persona_id", "sample_rank"}
-        ),
-        indexes = @Index(name = "idx_prf_persona", columnList = "persona_id")
+        name = "user_feature",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_user_feature_user", columnNames = {"user_id"})
+        },
+        indexes = {
+                @Index(name = "idx_uf_persona", columnList = "persona_id"),
+                @Index(name = "idx_uf_asof", columnList = "as_of_date"),
+                @Index(name = "idx_uf_primary_category", columnList = "primary_category"),
+                @Index(name = "idx_uf_price_sensitivity", columnList = "price_sensitivity"),
+                @Index(name = "idx_uf_benefit_sensitivity", columnList = "benefit_sensitivity"),
+                @Index(name = "idx_uf_brand_loyalty", columnList = "brand_loyalty")
+        }
 )
-public class PersonaRepresentativeFeature extends BaseEntity {
+public class UserFeature extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 소속 페르소나
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "persona_id", nullable = false)
+    /** 유저당 1개 row */
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    /** 현재 소속 페르소나(군집 결과) */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "persona_id")
     private Persona persona;
-
-    // 대표 샘플 순위
-    @Column(name = "sample_rank", nullable = false)
-    private int rank;
-
-    // UI/로그용 라벨 (ex: "REP_01", "대표#1")
-    @Column(name = "sample_label", length = 50)
-    private String sampleLabel;
 
     /**
      * 스냅샷 기준일(이 날짜를 기준으로 최근 N개월/일을 집계)
@@ -45,7 +51,7 @@ public class PersonaRepresentativeFeature extends BaseEntity {
     @Column(name = "as_of_date", nullable = false)
     private LocalDate asOfDate;
 
-    /* ===== 대표 샘플 feature 필드들 ===== */
+    /* ===== user feature 필드들 (bucket) ===== */
 
     @Convert(converter = AgeBandConverter.class)
     @Column(name = "age_band", length = 20)
@@ -76,14 +82,14 @@ public class PersonaRepresentativeFeature extends BaseEntity {
     @Column(name = "benefit_sensitivity", length = 40)
     private BenefitSensitivity benefitSensitivity;
 
-    /* ===== 대표 샘플 score 스냅샷 ===== */
+    /* ===== 점수(score) ===== */
 
     @Column(name = "brand_loyalty_score")
-    private Double brandLoyaltyScore; // 최근 6개월 동안 “동일 브랜드 2회 이상 구매한 브랜드들”의 구매 건수가 전체 구매 건수에서 차지하는 비율
+    private Double brandLoyaltyScore; // “동일 브랜드 2회 이상 구매한 브랜드들” 구매 비율(0~1)
 
     @Column(name = "price_sensitivity_score")
-    private Double priceSensitivityScore; // 최근 6개월 구매 중 “할인 적용 상품” 구매 비율
+    private Double priceSensitivityScore; // 할인 적용 구매 비율(0~1)
 
     @Column(name = "benefit_sensitivity_score")
-    private Double benefitSensitivityScore; // 최근 6개월 구매 중 “추가 혜택 포함(사은품/세트/쿠폰 등)” 구매 비율
+    private Double benefitSensitivityScore; // 혜택 포함 구매 비율(0~1)
 }
