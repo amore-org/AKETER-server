@@ -4,6 +4,7 @@ import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.ChannelType;
 import com.amore.aketer.domain.enums.MessageStatus;
 import com.amore.aketer.domain.persona.Persona;
+import com.amore.aketer.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,9 +30,26 @@ public class MessageReservation extends BaseEntity {
     @JoinColumn(name = "persona_id", nullable = false)
     private Persona persona;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "message_id", nullable = false)
+    private Message message;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "channel_type", nullable = false, length = 20)
     private ChannelType channelType;
+
+    /**
+     * 채널별 수신자 주소/식별자
+     * - SMS  : 전화번호(010...)
+     * - KAKAO: 카카오 식별자(예: kakaoUserKey)
+     * - EMAIL: 이메일 주소
+     */
+    @Column(name = "channel_address", nullable = false, length = 128)
+    private String channelAddress;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)

@@ -25,6 +25,12 @@ public class User extends BaseEntity {
     @Column(name = "name", length = 50)
     private String name;
 
+    @Column(name = "kakao_email", length = 255)
+    private String kakaoEmail;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "persona_id")
     private Persona persona;
