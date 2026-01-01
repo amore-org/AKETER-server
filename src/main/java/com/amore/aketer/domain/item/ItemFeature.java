@@ -68,4 +68,8 @@ public class ItemFeature extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "promotion_type", length = 40)
     private PromotionType promotionType;
+
+    /** 회사 판매 선호도 점수 (0~1) */
+    @Column(name = "sales_preference_score")
+    private Double salesPreferenceScore;
 }

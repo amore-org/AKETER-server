@@ -102,8 +102,4 @@ public class ItemDetail extends BaseEntity {
     @Lob
     @Column(name = "exclusion_notes")
     private String exclusionNotes;
-
-    /** 회사 판매 선호도 점수 (0~1) */
-    @Column(name = "sales_preference_score")
-    private Double salesPreferenceScore;
 }
