@@ -31,18 +31,21 @@ public class MessageReservationController {
 
     private final MessageReservationService reservationService;
 
-    @GetMapping("/today") // 오늘 발송 예약 Page
+    /**
+     * 메시지 발송 예약 목록 조회
+     * @param scheduledAt null: 오늘(포함) 이후 전체 데이터 / 날짜 지정: 해당 날짜만 조회
+     * @param pageable 페이징 정보
+     * @return 예약 목록 (페이징)
+     */
+    @GetMapping("/today")
     public Page<TodayReservationRowResponse> todayReservations(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date,
-
-            @RequestParam(required = false) MessageStatus status,
-            @RequestParam(required = false) String productSearch,
+            LocalDate scheduledAt,
 
             @PageableDefault(size = 10, sort = "scheduledAt", direction = ASC) Pageable pageable
     ) {
-        return reservationService.listTodayReservations(date, status, productSearch, pageable);
+        return reservationService.listTodayReservations(scheduledAt, pageable);
     }
 
     @GetMapping("/{id}")  // 메시지 예약 단건 상세

@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,52 +131,40 @@ public class MessageReservationService {
         );
     }
 
-    public Page<TodayReservationRowResponse> listTodayReservations( // 오늘 발송 예약 Page
+    public Page<TodayReservationRowResponse> listTodayReservations(
             LocalDate date,
-            MessageStatus status,
-            String productSearch,
             Pageable pageable
     ) {
-        LocalDate targetDate = (date != null) ? date : LocalDate.now(KST);
+        LocalDateTime start;
+        LocalDateTime end;
 
-        LocalDateTime start = targetDate.atStartOfDay();
-        LocalDateTime end = targetDate.plusDays(1).atStartOfDay();
+        if (date == null) {
+            // null → 오늘(포함) 이후 모든 데이터
+            start = LocalDate.now(KST).atStartOfDay();
+            end = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+        } else {
+            // 날짜 지정 → 해당 날짜만
+            start = date.atStartOfDay();
+            end = date.plusDays(1).atStartOfDay();
+        }
 
         Page<MessageReservation> page = reservationRepository.findTodayReservations(
-                start, end, status, normalize(productSearch), pageable
+                start, end, null, null, pageable
         );
-
-        List<Long> personaIds = page.getContent().stream()
-                .map(r -> r.getPersona().getId())
-                .distinct()
-                .toList();
-
-        Map<Long, PersonaItem> topItemByPersona = new HashMap<>();
-        if (!personaIds.isEmpty()) {
-            List<PersonaItem> all =
-                    personaItemRepository.findByPersona_IdInOrderByPersona_IdAscRankAsc(personaIds);
-
-            for (PersonaItem pi : all) {
-                topItemByPersona.putIfAbsent(pi.getPersona().getId(), pi);
-            }
-        }
 
         return page.map(r -> {
             var persona = r.getPersona();
-            var msg = persona.getMessage();
+            var msg = r.getMessage();  // MessageReservation의 개별 메시지 사용
+            var item = r.getItem();    // MessageReservation의 개별 아이템 사용
 
             Integer targetCount = persona.getMemberCount();
             if (targetCount == null) {
                 targetCount = (int) userRepository.countByPersona_Id(persona.getId()); // (권장) 나중에 bulk count로 바꾸기
             }
 
-            PersonaItem top = topItemByPersona.get(persona.getId());
-            Item item = (top != null) ? top.getItem() : null;
-
             String desc = (msg != null) ? msg.getBody() : null;
 
             return new TodayReservationRowResponse(
-                    r.getId(),
                     persona.getId(),
                     persona.getName(),
                     r.getScheduledAt(),
@@ -188,7 +174,8 @@ public class MessageReservationService {
                     (item != null) ? item.getId() : null,
                     (item != null) ? item.getItemKey() : null,
                     (item != null) ? item.getName() : null,
-                    (msg != null) ? msg.getId() : null,
+                    (item != null && item.getDetail() != null) ? item.getDetail().getBrandName() : null,
+                    r.getId(),  // messageReservationId
                     (msg != null) ? msg.getTitle() : null,
                     desc
             );
