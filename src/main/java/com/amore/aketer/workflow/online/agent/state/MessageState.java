@@ -37,29 +37,31 @@ public class MessageState extends AgentState {
 
 	// Validation failure reasons
 	public static final String DELIVERY_STRATEGY_FAILURE_REASONS = "deliveryStrategyFailureReasons";
-	public static final String MESSAGE_FAILURE_REASONS = "messageFailureReasons";
-	public static final String ETHICS_FAILURE_REASONS = "ethicsFailureReasons";
+    public static final String DRAFT_MESSAGE_FAILURE_REASONS = "draftMessageFailureReasons";
+    public static final String BRAND_TONE_FAILURE_REASONS = "brandToneFailureReasons";
+    public static final String ETHICS_FAILURE_REASONS = "ethicsFailureReasons";
 
 	// Schema Definition
-	public static final Map<String, Channel<?>> SCHEMA = Map.ofEntries(
-		Map.entry(PERSONA, Channels.base(() -> "")),
-		Map.entry(PRODUCT, Channels.base(() -> "")),
-		Map.entry(BRAND, Channels.base(() -> "")),
-		Map.entry(PURPOSE, Channels.base(() -> "")),
-		Map.entry(CHANNEL, Channels.base(() -> "")),
-		Map.entry(SEND_TIME, Channels.base(() -> LocalDateTime.MIN)),
+    public static final Map<String, Channel<?>> SCHEMA = Map.ofEntries(
+        Map.entry(PERSONA, Channels.base(() -> "")),
+        Map.entry(PRODUCT, Channels.base(() -> "")),
+        Map.entry(BRAND, Channels.base(() -> "")),
+        Map.entry(PURPOSE, Channels.base(() -> "")),
+        Map.entry(CHANNEL, Channels.base(() -> "")),
+        Map.entry(SEND_TIME, Channels.base(() -> LocalDateTime.MIN)),
         Map.entry(STRATEGY_REASON, Channels.base(() -> "")),
-		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
-		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
-		Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
-		Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
+		    Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
+		    Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
+		    Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
+		    Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
         Map.entry(ETHICS_POLICY_KEYWORD, Channels.base(() -> "")),
-		Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
+		    Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
         Map.entry(VALIDATION, Channels.base(() -> "")),
-		Map.entry(DELIVERY_STRATEGY_FAILURE_REASONS, Channels.appender(ArrayList::new)),
-		Map.entry(MESSAGE_FAILURE_REASONS, Channels.appender(ArrayList::new)),
-		Map.entry(ETHICS_FAILURE_REASONS, Channels.appender(ArrayList::new))
-	);
+        Map.entry(DELIVERY_STRATEGY_FAILURE_REASONS, Channels.appender(ArrayList::new)),
+        Map.entry(DRAFT_MESSAGE_FAILURE_REASONS, Channels.appender(ArrayList::new)),
+        Map.entry(BRAND_TONE_FAILURE_REASONS, Channels.appender(ArrayList::new)),
+        Map.entry(ETHICS_FAILURE_REASONS, Channels.appender(ArrayList::new))
+    );
 
 	public MessageState(Map<String, Object> initData) {
 		super(initData);
@@ -131,8 +133,12 @@ public class MessageState extends AgentState {
         return this.<List<String>>value(DELIVERY_STRATEGY_FAILURE_REASONS).orElse(new ArrayList<>());
     }
 
-    public List<String> getMessageFailureReasons() {
-        return this.<List<String>>value(MESSAGE_FAILURE_REASONS).orElse(new ArrayList<>());
+    public List<String> getDraftMessageFailureReasons() {
+        return this.<List<String>>value(DRAFT_MESSAGE_FAILURE_REASONS).orElse(new ArrayList<>());
+    }
+
+    public List<String> getBrandToneFailureReasons() {
+        return this.<List<String>>value(BRAND_TONE_FAILURE_REASONS).orElse(new ArrayList<>());
     }
 
     public List<String> getEthicsFailureReasons() {

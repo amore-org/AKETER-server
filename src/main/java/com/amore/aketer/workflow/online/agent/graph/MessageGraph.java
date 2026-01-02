@@ -28,7 +28,8 @@ public class MessageGraph {
     private final ValidateDeliveryStrategyNode validateDeliveryStrategyNode;
     private final DraftMarketingMessageNode draftMarketingMessageNode;
     private final ApplyBrandToneNode applyBrandToneNode;
-    private final ValidateMessageAndToneNode validateMessageAndToneNode;
+    private final ValidateDraftMessageNode validateDraftMessageNode;
+    private final ValidateBrandToneNode validateBrandToneNode;
     private final ValidateEthicsPolicyNode validateEthicsPolicyNode;
     private final RegenerationNode regenerationNode;
     private final GenerateEthicsPolicyKeywordNode generateEthicsPolicyKeywordNode;
@@ -49,11 +50,14 @@ public class MessageGraph {
                 // 마케팅 메시지 생성 노드
                 .addNode("draft_marketing_message", draftMarketingMessageNode)
 
+                // 메시지 초안 검증 노드
+                .addNode("validate_draft_message", validateDraftMessageNode)
+
                 // 브랜드 톤 적용 노드
                 .addNode("apply_brand_tone", applyBrandToneNode)
 
-                // 메시지, 브랜드 톤 적합성 검증 노드
-                .addNode("validate_message_and_tone", validateMessageAndToneNode)
+                // 브랜드 톤 검증 노드
+                .addNode("validate_brand_tone", validateBrandToneNode)
 
                 // 윤리 강령 검색 키워드 추천 노드
                 .addNode("generate_ethics_policy_keyword", generateEthicsPolicyKeywordNode)
@@ -83,17 +87,24 @@ public class MessageGraph {
                         Map.of("fail", "determine_delivery_strategy",
                                 "pass", "draft_marketing_message"))
 
-                // 마케팅 메시지 생성 노드 -> 브랜드 톤 적용 노드
-                .addEdge("draft_marketing_message", "apply_brand_tone")
+                // 마케팅 메시지 초안 생성 노드 -> 마케팅 초안 메시지 검증 노드
+                .addEdge("draft_marketing_message", "validate_draft_message")
 
-                // 브랜드 톤 적용 노드 -> 메시지, 브랜드 톤 적합성 검증 노드
-                .addEdge("apply_brand_tone", "validate_message_and_tone")
-
-                // 메시지, 브랜드 톤 적합성 검증 노드 (검증 결과: 실패) -> 마케팅 메시지 생성 노드
-                //                            (검증 결과: 성공) -> 윤리 강령 검색 키워드 추천 노드
-                .addConditionalEdges("validate_message_and_tone",
-                        messageRoute(),
+                // 메시지 초안 적합성 검증 노드 (검증 결과: 실패) -> 마케팅 메시지 생성 노드
+                //                        (검증 결과: 성공) -> 브랜드 톤 적용 노드
+                .addConditionalEdges("validate_draft_message",
+                        draftMessageRoute(),
                         Map.of("fail", "draft_marketing_message",
+                                "pass", "apply_brand_tone"))
+
+                // 브랜드 톤 적용 노드 -> 브랜드 톤 적합성 검증 노드
+                .addEdge("apply_brand_tone", "validate_brand_tone")
+
+                // 브랜드 톤 적합성 검증 노드  (검증 결과: 실패) -> 브랜드 톤 적용 노드
+                //                       (검증 결과: 성공) -> 윤리 강령 검색 키워드 추천 노드
+                .addConditionalEdges("validate_brand_tone",
+                        brandToneMessageRoute(),
+                        Map.of("fail", "apply_brand_tone",
                                 "pass", "generate_ethics_policy_keyword"))
 
                 // 윤리 강령 검색 키워드 추천 노드 -> 윤리 강령 검색 노드
@@ -123,8 +134,17 @@ public class MessageGraph {
         };
     }
 
-    // 메시지, 브랜드 톤 적합성 검증 노드 분기 조건
-    private AsyncEdgeAction<MessageState> messageRoute() {
+    // 메시지 초안 적합성 검증 노드 분기 조건
+    private AsyncEdgeAction<MessageState> draftMessageRoute() {
+        return state -> {
+            String result = state.getValidation();
+
+            return CompletableFuture.completedFuture(result);
+        };
+    }
+
+    // 브랜드톤 적합성 검증 노드 분기 조건
+    private AsyncEdgeAction<MessageState> brandToneMessageRoute() {
         return state -> {
             String result = state.getValidation();
 
