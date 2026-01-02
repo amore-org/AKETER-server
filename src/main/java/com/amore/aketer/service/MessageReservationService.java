@@ -1,12 +1,12 @@
 package com.amore.aketer.service;
 
 import com.amore.aketer.api.message.dto.*;
-import com.amore.aketer.domain.association.PersonaItem;
 import com.amore.aketer.domain.association.PersonaItemRepository;
-import com.amore.aketer.domain.item.Item;
+import com.amore.aketer.domain.enums.RecommendTargetType;
 import com.amore.aketer.domain.message.MessageReservation;
 import com.amore.aketer.domain.message.MessageReservationRepository;
 import com.amore.aketer.domain.enums.MessageStatus;
+import com.amore.aketer.domain.recommend.RecommendRepository;
 import com.amore.aketer.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +27,7 @@ public class MessageReservationService {
     private final MessageReservationRepository reservationRepository;
     private final PersonaItemRepository personaItemRepository;
     private final UserRepository userRepository;
+    private final RecommendRepository recommendRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
@@ -91,31 +92,39 @@ public class MessageReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약이 없습니다: " + id));
 
         var persona = r.getPersona();
-        var msg = persona.getMessage();
+        var msg = r.getMessage();  // MessageReservation의 메시지 직접 사용
+        var item = r.getItem();    // MessageReservation의 아이템 직접 사용
 
         Integer targetCount = persona.getMemberCount();
         if (targetCount == null) {
             targetCount = (int) userRepository.countByPersona_Id(persona.getId());
         }
 
-        var topItemOpt = personaItemRepository.findFirstByPersona_IdOrderByRankAsc(persona.getId());
+        ReservationDetailResponse.ItemDto itemDto = null;
+        if (item != null) {
+            String brandName = (item.getDetail() != null) ? item.getDetail().getBrandName() : null;
+            itemDto = new ReservationDetailResponse.ItemDto(
+                    item.getId(),
+                    item.getItemKey(),
+                    item.getName(),
+                    brandName
+            );
+        }
 
-        ReservationDetailResponse.ItemDto itemDto = topItemOpt
-                .map(pi -> new ReservationDetailResponse.ItemDto(
-                        pi.getItem().getId(),
-                        pi.getItem().getItemKey(),
-                        pi.getItem().getName()
-                ))
+        ReservationDetailResponse.MessageDto messageDto = null;
+        if (msg != null) {
+            messageDto = new ReservationDetailResponse.MessageDto(
+                    msg.getId(),
+                    msg.getTitle(),
+                    msg.getBody()
+            );
+        }
+
+        // Recommend 테이블에서 추천 이유 조회
+        String reason = recommendRepository
+                .findByTargetTypeAndTargetId(RecommendTargetType.PERSONA, persona.getId())
+                .map(recommend -> recommend.getRecommendReason())
                 .orElse(null);
-
-        ReservationDetailResponse.MessageDto messageDto =
-                (msg == null) ? null : new ReservationDetailResponse.MessageDto(
-                        msg.getId(),
-                        msg.getTitle(),
-                        msg.getBody()  // description 자리에 body 그대로
-                );
-
-        String reason = persona.getProfileText(); // 추천이유 임시 대체
 
         return new ReservationDetailResponse(
                 r.getId(),
@@ -131,7 +140,7 @@ public class MessageReservationService {
         );
     }
 
-    public Page<TodayReservationRowResponse> listTodayReservations(
+    public Page<ReservationByDateRowResponse> getListReservationsByDate(
             LocalDate date,
             Pageable pageable
     ) {
@@ -164,7 +173,7 @@ public class MessageReservationService {
 
             String desc = (msg != null) ? msg.getBody() : null;
 
-            return new TodayReservationRowResponse(
+            return new ReservationByDateRowResponse(
                     persona.getId(),
                     persona.getName(),
                     r.getScheduledAt(),
