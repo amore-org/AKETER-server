@@ -37,7 +37,7 @@ public class MessageReservationController {
      * @param pageable 페이징 정보
      * @return 예약 목록 (페이징)
      */
-    @GetMapping("/today")
+    @GetMapping("")
     public Page<TodayReservationRowResponse> todayReservations(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
