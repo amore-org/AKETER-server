@@ -52,7 +52,7 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
         String productInfo = state.getProductInformation();
         String channel = state.getChannel();
         String sendTime = state.getSendTime() != null ? state.getSendTime().toString() : "미정";
-        List<String> failureReasons = state.getMessageFailureReasons();
+        List<String> failureReasons = state.getDraftMessageFailureReasons();
 
         //==LLM 응답 구조화==/
         BeanOutputConverter<DraftMessageResponse> converter = new BeanOutputConverter<>(DraftMessageResponse.class);

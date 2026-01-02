@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Component
-public class ValidateMessageAndToneNode implements AsyncNodeAction<MessageState> {
+public class ValidateDraftMessageNode implements AsyncNodeAction<MessageState> {
 
     @Override
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
