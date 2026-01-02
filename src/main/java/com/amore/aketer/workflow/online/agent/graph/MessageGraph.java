@@ -50,7 +50,7 @@ public class MessageGraph {
                 // 마케팅 메시지 생성 노드
                 .addNode("draft_marketing_message", draftMarketingMessageNode)
 
-                // 초안 검증 노드
+                // 메시지 초안 검증 노드
                 .addNode("validate_draft_message", validateDraftMessageNode)
 
                 // 브랜드 톤 적용 노드
