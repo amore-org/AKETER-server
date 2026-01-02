@@ -50,6 +50,15 @@ spring:
       embedding:
         options:
           model: text-embedding-3-small
+    vectorstore:
+      chroma:
+        client:
+          host: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST:http://localhost}
+          port: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT:8000}
+        tenant-name: ${SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME:default_tenant}
+        database-name: ${SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME:default_database}
+        collection-name: ${SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME:aketer_ethics_policy}
+        initialize-schema: true
 
 aketer:
   messaging:
@@ -76,13 +85,3 @@ aketer:
 logging:
   level:
     org.springframework.batch: INFO
-
-#    vectorstore:
-#      chroma:
-#        client:
-#          host: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST:http://localhost}
-#          port: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT:8000}
-#        tenant-name: ${SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME:SpringAiTenant}
-#        database-name: ${SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME:SpringAiDatabase}
-#        collection-name: ${SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME:aketer}
-#        initialize-schema: true

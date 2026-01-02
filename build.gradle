@@ -39,6 +39,7 @@ dependencies {
 	// Spring AI (OpenAI + Chroma + RAG advisors)
 	implementation "org.springframework.ai:spring-ai-starter-model-openai"
 	implementation "org.springframework.ai:spring-ai-advisors-vector-store"
+	implementation "org.springframework.ai:spring-ai-starter-vector-store-chroma"
 
 	// LangGraph4j
 	implementation platform("org.bsc.langgraph4j:langgraph4j-bom:1.7.8")
