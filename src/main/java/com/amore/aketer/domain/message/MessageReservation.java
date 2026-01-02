@@ -3,6 +3,7 @@ package com.amore.aketer.domain.message;
 import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.ChannelType;
 import com.amore.aketer.domain.enums.MessageStatus;
+import com.amore.aketer.domain.item.Item;
 import com.amore.aketer.domain.persona.Persona;
 import com.amore.aketer.domain.user.User;
 import jakarta.persistence.*;
@@ -37,6 +38,10 @@ public class MessageReservation extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "message_id", nullable = false)
     private Message message;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "channel_type", nullable = false, length = 20)
