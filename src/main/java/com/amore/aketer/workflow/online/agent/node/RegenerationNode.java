@@ -64,7 +64,7 @@ public class RegenerationNode implements AsyncNodeAction<MessageState> {
                 String brandGuidelines = state.getBrandGuidelines();
                 String ethicsGuidelines = state.getEthicsPolicyGuidelines();
                 String persona = state.getPersona();
-                String product = state.getProduct();
+                String product = state.getItem();
 
                 // 3. BeanOutputConverter 초기화
                 var converter = new BeanOutputConverter<>(RegenerationResponse.class);

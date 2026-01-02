@@ -53,8 +53,7 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
         String persona = state.getPersona();
-        String product = state.getProduct();
-        String productInfo = state.getProductInformation();
+        String product = state.getItem();
         List<String> failureReasons = state.getDeliveryStrategyFailureReasons();
 
         // 서버 시간과 관계없이 한국 시간(KST) 기준으로 현재 시간 생성
@@ -104,7 +103,7 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                         상품 상세 정보: %s
                         
                         {format}
-                        """, now, feedbackPrompt, persona, product, productInfo);
+                        """, now, feedbackPrompt, persona, product);
 
         //==LLM 사용==//
         DeliveryStrategyResponse response = chatClient.prompt()

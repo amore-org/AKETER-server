@@ -48,8 +48,7 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
         String persona = state.getPersona();
-        String product = state.getProduct();
-        String productInfo = state.getProductInformation();
+        String product = state.getItem();
         String channel = state.getChannel();
         String sendTime = state.getSendTime() != null ? state.getSendTime().toString() : "미정";
         List<String> failureReasons = state.getMessageFailureReasons();
@@ -96,7 +95,7 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
                         - rationale: 왜 이렇게 작성했는지에 대한 논리적 근거 (한국어로 작성).
                         
                         {format}
-                        """, persona, product, productInfo, channel, sendTime, feedbackPrompt);
+                        """, persona, product, channel, sendTime, feedbackPrompt);
 
         //==LLM 사용==//
         DraftMessageResponse response = chatClient.prompt()

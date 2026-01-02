@@ -13,7 +13,7 @@ public class MessageState extends AgentState {
 
 	// 초기 입력 값
 	public static final String PERSONA = "persona";
-	public static final String PRODUCT = "product";
+	public static final String ITEM = "item";
 	public static final String BRAND = "brand";
 	public static final String PURPOSE = "purpose";
 
@@ -27,7 +27,6 @@ public class MessageState extends AgentState {
 	public static final String MESSAGE_BODY = "messageBody";
 
 	// docs
-	public static final String PRODUCT_INFORMATION = "productInformation";
 	public static final String BRAND_GUIDELINES = "brandGuidelines";
     public static final String ETHICS_POLICY_KEYWORD = "ethicsPolicyKeyword";
 	public static final String ETHICS_POLICY_GUIDELINES = "ethicsPolicyGuidelines";
@@ -42,8 +41,8 @@ public class MessageState extends AgentState {
 
 	// Schema Definition
 	public static final Map<String, Channel<?>> SCHEMA = Map.ofEntries(
-		Map.entry(PERSONA, Channels.base(() -> "")),
-		Map.entry(PRODUCT, Channels.base(() -> "")),
+		Map.entry(PERSONA, Channels.base(PersonaState::new)),
+		Map.entry(ITEM, Channels.base(ItemState::new)),
 		Map.entry(BRAND, Channels.base(() -> "")),
 		Map.entry(PURPOSE, Channels.base(() -> "")),
 		Map.entry(CHANNEL, Channels.base(() -> "")),
@@ -51,7 +50,6 @@ public class MessageState extends AgentState {
         Map.entry(STRATEGY_REASON, Channels.base(() -> "")),
 		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
 		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
-		Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
 		Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
 		Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
         Map.entry(VALIDATION, Channels.base(() -> "")),
@@ -69,8 +67,8 @@ public class MessageState extends AgentState {
         return this.<String>value(PERSONA).orElse(null);
     }
 
-    public String getProduct() {
-        return this.<String>value(PRODUCT).orElse(null);
+    public String getItem() {
+        return this.<String>value(ITEM).orElse(null);
     }
 
     public String getBrand() {
@@ -104,10 +102,6 @@ public class MessageState extends AgentState {
     }
 
     // Getters - 문서 정보
-    public String getProductInformation() {
-        return this.<String>value(PRODUCT_INFORMATION).orElse(null);
-    }
-
     public String getBrandGuidelines() {
         return this.<String>value(BRAND_GUIDELINES).orElse(null);
     }

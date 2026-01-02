@@ -46,8 +46,7 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
         String persona = state.getPersona();
-        String product = state.getProduct();
-        String productInfo = state.getProductInformation();
+        String product = state.getItem();
         String channel = state.getChannel();
         String sendTime = state.getSendTime().toString();
         String strategyReason = state.getStrategyReason();
@@ -78,7 +77,7 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
                 - 전략에 문제가 있거나 개선이 필요하다면 validation을 'fail'로 설정하고, failureReason에 그 이유를 구체적으로 명시해. (반드시 한국어로 작성)
                 
                 {format}
-                """, persona, product, productInfo, channel, sendTime, strategyReason);
+                """, persona, product, channel, sendTime, strategyReason);
 
         //==LLM 사용==//
         ValidationResponse response = chatClient.prompt()
