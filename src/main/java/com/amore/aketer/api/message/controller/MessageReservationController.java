@@ -1,7 +1,6 @@
 package com.amore.aketer.api.message.controller;
 
 import com.amore.aketer.api.message.dto.*;
-import com.amore.aketer.domain.enums.MessageStatus;
 import com.amore.aketer.service.MessageReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
@@ -37,29 +35,20 @@ public class MessageReservationController {
      * @param pageable 페이징 정보
      * @return 예약 목록 (페이징)
      */
-    @GetMapping("")
-    public Page<TodayReservationRowResponse> todayReservations(
+    @GetMapping
+    public Page<ReservationByDateRowResponse> getReservations(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate scheduledAt,
 
             @PageableDefault(size = 10, sort = "scheduledAt", direction = ASC) Pageable pageable
     ) {
-        return reservationService.listTodayReservations(scheduledAt, pageable);
+        return reservationService.getListReservationsByDate(scheduledAt, pageable);
     }
 
     @GetMapping("/{id}")  // 메시지 예약 단건 상세
     public ReservationDetailResponse getReservation(@PathVariable Long id) {
         return reservationService.getReservationDetail(id);
-    }
-
-    @GetMapping
-    public ReservationListResponse listReservations(
-            @RequestParam(required = false) String userId,
-            @RequestParam(required = false) MessageStatus status,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
-        return reservationService.listReservations(userId, status, from, to);
     }
 
     @PutMapping("/{id}")
