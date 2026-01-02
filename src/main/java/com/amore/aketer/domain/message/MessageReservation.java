@@ -1,9 +1,9 @@
 package com.amore.aketer.domain.message;
 
-import com.amore.aketer.domain.association.PersonaItem;
 import com.amore.aketer.domain.common.BaseEntity;
 import com.amore.aketer.domain.enums.ChannelType;
 import com.amore.aketer.domain.enums.MessageStatus;
+import com.amore.aketer.domain.item.Item;
 import com.amore.aketer.domain.persona.Persona;
 import com.amore.aketer.domain.user.User;
 import jakarta.persistence.*;
@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "message_reservation", indexes = {
         @Index(name = "idx_msg_res_persona", columnList = "persona_id"),
         @Index(name = "idx_msg_res_scheduled_at", columnList = "scheduled_at"),
-        @Index(name = "idx_msg_res_status", columnList = "status"),
-        @Index(name = "idx_msg_res_persona_item", columnList = "persona_item_id")
+        @Index(name = "idx_msg_res_status", columnList = "status")
 })
 @Getter
 @Builder
@@ -41,8 +40,8 @@ public class MessageReservation extends BaseEntity {
     private Message message;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "persona_item_id")
-    private PersonaItem personaItem;
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "channel_type", nullable = false, length = 20)
