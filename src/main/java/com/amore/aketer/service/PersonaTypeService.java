@@ -1,6 +1,8 @@
 package com.amore.aketer.service;
 
 import com.amore.aketer.api.persona.dto.PersonaTypeRowResponse;
+import com.amore.aketer.domain.message.MessageReservation;
+import com.amore.aketer.domain.message.MessageReservationRepository;
 import com.amore.aketer.domain.persona.Persona;
 import com.amore.aketer.domain.persona.PersonaRepository;
 import com.amore.aketer.domain.persona.PersonaRepresentativeFeature;
@@ -22,6 +24,7 @@ public class PersonaTypeService {
 	private final PersonaRepository personaRepository;
 	private final PersonaRepresentativeFeatureRepository prfRepository;
 	private final UserRepository userRepository;
+	private final MessageReservationRepository messageReservationRepository;
 
 	@Transactional(readOnly = true)
 	public Page<PersonaTypeRowResponse> listPersonaTypes(Pageable pageable) {
@@ -32,6 +35,7 @@ public class PersonaTypeService {
 			.map(Persona::getId)
 			.toList();
 
+		// PersonaRepresentativeFeature
 		Map<Long, List<PersonaRepresentativeFeature>> featuresByPersonaId = new HashMap<>();
 		if (!personaIds.isEmpty()) {
 			List<PersonaRepresentativeFeature> all =
@@ -45,8 +49,22 @@ public class PersonaTypeService {
 				));
 		}
 
-		Map<Long, List<PersonaRepresentativeFeature>> finalFeaturesByPersonaId = featuresByPersonaId;
+		// MessageReservation
+		Map<Long, List<MessageReservation>> messageHistoryByPersonaId = new HashMap<>();
+		if (!personaIds.isEmpty()) {
+			List<MessageReservation> allReservations =
+				messageReservationRepository.findByPersona_IdInOrderByPersona_IdAscScheduledAtDesc(personaIds);
 
+			messageHistoryByPersonaId = allReservations.stream()
+				.collect(Collectors.groupingBy(
+					r -> r.getPersona().getId(),
+					LinkedHashMap::new,
+					Collectors.toList()
+				));
+		}
+
+		Map<Long, List<PersonaRepresentativeFeature>> finalFeaturesByPersonaId = featuresByPersonaId;
+		Map<Long, List<MessageReservation>> finalMessageHistoryByPersonaId = messageHistoryByPersonaId;
 		return page.map(persona -> {
 			Long personaId = persona.getId();
 
@@ -83,20 +101,38 @@ public class PersonaTypeService {
 			// primaryCategory rank=1
 			String primaryCategory = (top1 != null) ? top1.getPrimaryCategory() : null;
 
+			// 발송 히스토리 변환
+			List<PersonaTypeRowResponse.MessageHistoryDto> messageHistory =
+				finalMessageHistoryByPersonaId.getOrDefault(personaId, List.of())
+					.stream()
+					.map(r -> {
+						var msg = r.getMessage();
+						var item = r.getItem();
+						return new PersonaTypeRowResponse.MessageHistoryDto(
+							r.getId(),
+							(msg != null) ? msg.getTitle() : null,
+							(msg != null) ? msg.getBody() : null,
+							r.getScheduledAt(),
+							(item != null && item.getDetail() != null) ? item.getDetail().getBrandName() : null,
+							(item != null) ? item.getName() : null,
+							r.getStatus().name()
+						);
+					})
+					.toList();
+
 			return new PersonaTypeRowResponse(
 				personaId,
 				persona.getName(),
 				memberCount,
-
 				top1 != null ? top1.getAgeBand() : null,
 				primaryCategory,
 				top1 != null ? top1.getPurchaseStyle() : null,
 				top1 != null ? top1.getBrandLoyalty() : null,
 				top1 != null ? top1.getPriceSensitivity() : null,
 				top1 != null ? top1.getBenefitSensitivity() : null,
-
 				trendKeywords,
-				coreKeywords
+				coreKeywords,
+				messageHistory
 			);
 		});
 	}

@@ -21,6 +21,12 @@ public interface MessageReservationRepository extends JpaRepository<MessageReser
 
     List<MessageReservation> findByStatus(MessageStatus status);
 
+    @EntityGraph(attributePaths = {"message", "item", "item.detail"})
+    List<MessageReservation> findByPersona_IdOrderByScheduledAtDesc(Long personaId);
+
+    @EntityGraph(attributePaths = {"message", "item", "item.detail"})
+    List<MessageReservation> findByPersona_IdInOrderByPersona_IdAscScheduledAtDesc(List<Long> personaIds);
+
     @EntityGraph(attributePaths = {"persona", "message", "item", "item.detail"})
     @Query("""
     select mr
