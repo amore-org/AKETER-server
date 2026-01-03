@@ -53,7 +53,7 @@ spring:
     vectorstore:
       chroma:
         client:
-          host: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST:http://localhost}
+          host: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST:http://aketer-chroma}
           port: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT:8000}
         tenant-name: ${SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME:default_tenant}
         database-name: ${SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME:default_database}

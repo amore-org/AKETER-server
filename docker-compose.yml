@@ -26,7 +26,6 @@ services:
       AMORE_DB_NAME: "amore"
       AMORE_DB_USER: "team_ai_app_user"
 
-      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST: "http://localhost"
       SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT: "8000"
       SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME: "aketer_ethics_policy"
       SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME: "default_tenant"
@@ -38,8 +37,16 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
+      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST: "http://aketer-chroma"
+
     depends_on:
       - rabbitmq
+    networks:
+      - aketer-batch_aketer-network
 
 volumes:
   rabbitmq_data:
+
+networks:
+  aketer-batch_aketer-network:
+    external: true
