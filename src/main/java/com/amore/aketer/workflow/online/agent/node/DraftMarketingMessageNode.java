@@ -1,6 +1,9 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.domain.enums.ChannelType;
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
@@ -47,11 +50,15 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
     @Override
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
-        String persona = state.getPersona();
-        String product = state.getItem();
-        String channel = state.getChannel();
+        PersonaState persona = state.getPersona();
+        ItemState product = state.getItem();
+        ChannelType channel = state.getChannel();
         String sendTime = state.getSendTime() != null ? state.getSendTime().toString() : "미정";
         List<String> failureReasons = state.getMessageFailureReasons();
+
+        String personaInfo = (persona != null) ? persona.getProfileText() : "N/A";
+        String productName = (product != null) ? product.getBrandName() : "N/A";
+        String productDetails = (product != null) ? String.format("카테고리: %s, 특징: %s", product.getMajorCategory(), product.getKeyBenefits()) : "N/A";
 
         //==LLM 응답 구조화==/
         BeanOutputConverter<DraftMessageResponse> converter = new BeanOutputConverter<>(DraftMessageResponse.class);
@@ -95,13 +102,15 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
                         - rationale: 왜 이렇게 작성했는지에 대한 논리적 근거 (한국어로 작성).
                         
                         {format}
-                        """, persona, product, channel, sendTime, feedbackPrompt);
+                        """, personaInfo, productName, productDetails, channel, sendTime, feedbackPrompt);
 
         //==LLM 사용==//
         DraftMessageResponse response = chatClient.prompt()
                 .user(u -> u.text(prompt).param("format", converter.getFormat()))
                 .call()
                 .entity(converter);
+
+        // TODO: 상품 추천 이유를 recommend reason으로 recommend에 저장
 
         return CompletableFuture.completedFuture(Map.of(
                 MessageState.MESSAGE_TITLE, response.title(),
