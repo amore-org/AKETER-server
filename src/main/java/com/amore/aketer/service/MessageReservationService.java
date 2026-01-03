@@ -150,7 +150,7 @@ public class MessageReservationService {
         if (date == null) {
             // null → 오늘(포함) 이후 모든 데이터
             start = LocalDate.now(KST).atStartOfDay();
-            end = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+            end = LocalDateTime.of(2099, 12, 31, 23, 59, 59);
         } else {
             // 날짜 지정 → 해당 날짜만
             start = date.atStartOfDay();
