@@ -1,6 +1,8 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,8 +65,11 @@ public class RegenerationNode implements AsyncNodeAction<MessageState> {
                 String brand = state.getBrand();
                 String brandGuidelines = state.getBrandGuidelines();
                 String ethicsGuidelines = state.getEthicsPolicyGuidelines();
-                String persona = state.getPersona();
-                String product = state.getItem();
+                PersonaState persona = state.getPersona();
+                ItemState product = state.getItem();
+
+                String personaInfo = (persona != null) ? persona.getProfileText() : "일반 고객";
+                String productInfo = (product != null) ? String.format("%s (%s, %s)", product.getBrandName(), product.getMajorCategory(), product.getKeyBenefits()) : "(제품 정보 없음)";
 
                 // 3. BeanOutputConverter 초기화
                 var converter = new BeanOutputConverter<>(RegenerationResponse.class);
@@ -82,8 +87,8 @@ public class RegenerationNode implements AsyncNodeAction<MessageState> {
                         .param("oldBody", oldBody != null ? oldBody : "(본문 없음)")
                         .param("brand", brand != null ? brand : "(브랜드 정보 없음)")
                         .param("brandGuidelines", brandGuidelines != null ? brandGuidelines : "(브랜드 가이드라인 없음)")
-                        .param("persona", persona != null ? persona : "일반 고객")
-                        .param("product", product != null ? product : "(제품 정보 없음)")
+                        .param("persona", personaInfo)
+                        .param("product", productInfo)
                         .param("failureReasons", formatFailureReasons(failureReasons))
                         .param("ethicsGuidelines", ethicsGuidelines != null ? ethicsGuidelines : "기본 윤리 강령 적용")
                         .param("format", converter.getFormat())

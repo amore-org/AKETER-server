@@ -3,7 +3,7 @@ package com.amore.aketer.api.message.dto;
 import java.time.LocalDateTime;
 
 public record ReservationDetailResponse(
-        Long id,
+        Long MessageId,
         Long personaId,
         String personaName,
         LocalDateTime scheduledAt,
@@ -14,6 +14,6 @@ public record ReservationDetailResponse(
         MessageDto message,
         String recommendReason
 ) {
-    public record ItemDto(Long id, String itemKey, String name) {}
+    public record ItemDto(Long id, String itemKey, String name, String brandName) {}
     public record MessageDto(Long id, String title, String description) {}
 }

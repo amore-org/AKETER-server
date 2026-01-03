@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RecommendRepository extends JpaRepository<Recommend, Long> {
-    List<Recommend> findByTargetIdAndTargetType(Long targetId, RecommendTargetType targetType);
+
+    Optional<Recommend> findByTargetTypeAndTargetId(RecommendTargetType targetType, Long targetId);
 
     @Query("""
         SELECT r

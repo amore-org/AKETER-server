@@ -21,7 +21,13 @@ public interface MessageReservationRepository extends JpaRepository<MessageReser
 
     List<MessageReservation> findByStatus(MessageStatus status);
 
-    @EntityGraph(attributePaths = {"persona", "persona.message"})
+    @EntityGraph(attributePaths = {"message", "item", "item.detail"})
+    List<MessageReservation> findByPersona_IdOrderByScheduledAtDesc(Long personaId);
+
+    @EntityGraph(attributePaths = {"message", "item", "item.detail"})
+    List<MessageReservation> findByPersona_IdInOrderByPersona_IdAscScheduledAtDesc(List<Long> personaIds);
+
+    @EntityGraph(attributePaths = {"persona", "message", "item", "item.detail"})
     @Query("""
     select mr
     from MessageReservation mr
@@ -29,13 +35,7 @@ public interface MessageReservationRepository extends JpaRepository<MessageReser
       and (:status is null or mr.status = :status)
       and (
           :productSearch is null
-          or exists (
-              select 1
-              from PersonaItem pi
-              join pi.item it
-              where pi.persona = mr.persona
-                and lower(it.name) like concat('%', lower(:productSearch), '%')
-          )
+          or lower(mr.item.name) like concat('%', lower(:productSearch), '%')
       )
     """)
     Page<MessageReservation> findTodayReservations(

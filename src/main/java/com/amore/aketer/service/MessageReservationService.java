@@ -1,12 +1,12 @@
 package com.amore.aketer.service;
 
 import com.amore.aketer.api.message.dto.*;
-import com.amore.aketer.domain.association.PersonaItem;
 import com.amore.aketer.domain.association.PersonaItemRepository;
-import com.amore.aketer.domain.item.Item;
+import com.amore.aketer.domain.enums.RecommendTargetType;
 import com.amore.aketer.domain.message.MessageReservation;
 import com.amore.aketer.domain.message.MessageReservationRepository;
 import com.amore.aketer.domain.enums.MessageStatus;
+import com.amore.aketer.domain.recommend.RecommendRepository;
 import com.amore.aketer.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +27,7 @@ public class MessageReservationService {
     private final MessageReservationRepository reservationRepository;
     private final PersonaItemRepository personaItemRepository;
     private final UserRepository userRepository;
+    private final RecommendRepository recommendRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
@@ -93,31 +92,39 @@ public class MessageReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 예약이 없습니다: " + id));
 
         var persona = r.getPersona();
-        var msg = persona.getMessage();
+        var msg = r.getMessage();  // MessageReservation의 메시지 직접 사용
+        var item = r.getItem();    // MessageReservation의 아이템 직접 사용
 
         Integer targetCount = persona.getMemberCount();
         if (targetCount == null) {
             targetCount = (int) userRepository.countByPersona_Id(persona.getId());
         }
 
-        var topItemOpt = personaItemRepository.findFirstByPersona_IdOrderByRankAsc(persona.getId());
+        ReservationDetailResponse.ItemDto itemDto = null;
+        if (item != null) {
+            String brandName = (item.getDetail() != null) ? item.getDetail().getBrandName() : null;
+            itemDto = new ReservationDetailResponse.ItemDto(
+                    item.getId(),
+                    item.getItemKey(),
+                    item.getName(),
+                    brandName
+            );
+        }
 
-        ReservationDetailResponse.ItemDto itemDto = topItemOpt
-                .map(pi -> new ReservationDetailResponse.ItemDto(
-                        pi.getItem().getId(),
-                        pi.getItem().getItemKey(),
-                        pi.getItem().getName()
-                ))
+        ReservationDetailResponse.MessageDto messageDto = null;
+        if (msg != null) {
+            messageDto = new ReservationDetailResponse.MessageDto(
+                    msg.getId(),
+                    msg.getTitle(),
+                    msg.getBody()
+            );
+        }
+
+        // Recommend 테이블에서 추천 이유 조회
+        String reason = recommendRepository
+                .findByTargetTypeAndTargetId(RecommendTargetType.PERSONA, persona.getId())
+                .map(recommend -> recommend.getRecommendReason())
                 .orElse(null);
-
-        ReservationDetailResponse.MessageDto messageDto =
-                (msg == null) ? null : new ReservationDetailResponse.MessageDto(
-                        msg.getId(),
-                        msg.getTitle(),
-                        msg.getBody()  // description 자리에 body 그대로
-                );
-
-        String reason = persona.getProfileText(); // 추천이유 임시 대체
 
         return new ReservationDetailResponse(
                 r.getId(),
@@ -133,52 +140,40 @@ public class MessageReservationService {
         );
     }
 
-    public Page<TodayReservationRowResponse> listTodayReservations( // 오늘 발송 예약 Page
+    public Page<ReservationByDateRowResponse> getListReservationsByDate(
             LocalDate date,
-            MessageStatus status,
-            String productSearch,
             Pageable pageable
     ) {
-        LocalDate targetDate = (date != null) ? date : LocalDate.now(KST);
+        LocalDateTime start;
+        LocalDateTime end;
 
-        LocalDateTime start = targetDate.atStartOfDay();
-        LocalDateTime end = targetDate.plusDays(1).atStartOfDay();
+        if (date == null) {
+            // null → 오늘(포함) 이후 모든 데이터
+            start = LocalDate.now(KST).atStartOfDay();
+            end = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+        } else {
+            // 날짜 지정 → 해당 날짜만
+            start = date.atStartOfDay();
+            end = date.plusDays(1).atStartOfDay();
+        }
 
         Page<MessageReservation> page = reservationRepository.findTodayReservations(
-                start, end, status, normalize(productSearch), pageable
+                start, end, null, null, pageable
         );
-
-        List<Long> personaIds = page.getContent().stream()
-                .map(r -> r.getPersona().getId())
-                .distinct()
-                .toList();
-
-        Map<Long, PersonaItem> topItemByPersona = new HashMap<>();
-        if (!personaIds.isEmpty()) {
-            List<PersonaItem> all =
-                    personaItemRepository.findByPersona_IdInOrderByPersona_IdAscRankAsc(personaIds);
-
-            for (PersonaItem pi : all) {
-                topItemByPersona.putIfAbsent(pi.getPersona().getId(), pi);
-            }
-        }
 
         return page.map(r -> {
             var persona = r.getPersona();
-            var msg = persona.getMessage();
+            var msg = r.getMessage();  // MessageReservation의 개별 메시지 사용
+            var item = r.getItem();    // MessageReservation의 개별 아이템 사용
 
             Integer targetCount = persona.getMemberCount();
             if (targetCount == null) {
                 targetCount = (int) userRepository.countByPersona_Id(persona.getId()); // (권장) 나중에 bulk count로 바꾸기
             }
 
-            PersonaItem top = topItemByPersona.get(persona.getId());
-            Item item = (top != null) ? top.getItem() : null;
-
             String desc = (msg != null) ? msg.getBody() : null;
 
-            return new TodayReservationRowResponse(
-                    r.getId(),
+            return new ReservationByDateRowResponse(
                     persona.getId(),
                     persona.getName(),
                     r.getScheduledAt(),
@@ -188,7 +183,8 @@ public class MessageReservationService {
                     (item != null) ? item.getId() : null,
                     (item != null) ? item.getItemKey() : null,
                     (item != null) ? item.getName() : null,
-                    (msg != null) ? msg.getId() : null,
+                    (item != null && item.getDetail() != null) ? item.getDetail().getBrandName() : null,
+                    r.getId(),  // messageReservationId
                     (msg != null) ? msg.getTitle() : null,
                     desc
             );

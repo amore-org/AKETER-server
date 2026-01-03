@@ -54,7 +54,7 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
         ItemState product = state.getItem();
         ChannelType channel = state.getChannel();
         String sendTime = state.getSendTime() != null ? state.getSendTime().toString() : "미정";
-        List<String> failureReasons = state.getMessageFailureReasons();
+        List<String> failureReasons = state.getDraftMessageFailureReasons();
 
         String personaInfo = (persona != null) ? persona.getProfileText() : "N/A";
         String productName = (product != null) ? product.getBrandName() : "N/A";
