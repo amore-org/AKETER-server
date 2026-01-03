@@ -10,7 +10,6 @@ import com.amore.aketer.domain.message.Message;
 import com.amore.aketer.domain.message.MessageRepository;
 import com.amore.aketer.domain.message.MessageReservation;
 import com.amore.aketer.domain.message.MessageReservationRepository;
-import com.amore.aketer.domain.order.OrderRepository;
 import com.amore.aketer.domain.persona.Persona;
 import com.amore.aketer.domain.persona.PersonaRepository;
 import com.amore.aketer.domain.recommend.Recommend;

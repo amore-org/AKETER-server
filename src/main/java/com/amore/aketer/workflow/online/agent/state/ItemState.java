@@ -1,7 +1,6 @@
 package com.amore.aketer.workflow.online.agent.state;
 
 import com.amore.aketer.domain.enums.AgeBand;
-import com.amore.aketer.domain.enums.ItemCategory;
 import com.amore.aketer.domain.enums.PricePosition;
 import com.amore.aketer.domain.enums.PromotionType;
 import com.amore.aketer.domain.item.Item;
@@ -12,8 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Getter
 @Builder
