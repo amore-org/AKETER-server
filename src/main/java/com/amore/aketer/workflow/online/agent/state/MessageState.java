@@ -54,6 +54,7 @@ public class MessageState extends AgentState {
         Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
         Map.entry(PRODUCT_INFORMATION, Channels.base(() -> "")),
         Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
+        Map.entry(ETHICS_POLICY_KEYWORD, Channels.base(() -> "")),
         Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
         Map.entry(VALIDATION, Channels.base(() -> "")),
         Map.entry(DELIVERY_STRATEGY_FAILURE_REASONS, Channels.appender(ArrayList::new)),
