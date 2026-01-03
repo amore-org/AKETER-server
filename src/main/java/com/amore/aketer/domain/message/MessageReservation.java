@@ -43,6 +43,10 @@ public class MessageReservation extends BaseEntity {
     @JoinColumn(name = "item_id")
     private Item item;
 
+    @Lob
+    @Column(name = "recommend_reason")
+    private String recommendReason;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "channel_type", nullable = false, length = 20)
     private ChannelType channelType;
