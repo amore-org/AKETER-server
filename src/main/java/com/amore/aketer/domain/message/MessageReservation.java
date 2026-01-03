@@ -40,7 +40,7 @@ public class MessageReservation extends BaseEntity {
     private Message message;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
     @Enumerated(EnumType.STRING)
