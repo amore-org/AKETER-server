@@ -1,6 +1,9 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.domain.enums.ChannelType;
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
@@ -45,10 +48,9 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
     @Override
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
-        String persona = state.getPersona();
-        String product = state.getProduct();
-        String productInfo = state.getProductInformation();
-        String channel = state.getChannel();
+        PersonaState persona = state.getPersona();
+        ItemState product = state.getItem();
+        ChannelType channel = state.getChannel();
         String sendTime = state.getSendTime().toString();
         String strategyReason = state.getStrategyReason();
 
@@ -61,16 +63,17 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
                 앞서 수립된 '메시지 발송 전략'이 타겟 페르소나와 상품 특성에 비추어 정말 효과적인지 비판적으로 검증해.
                 
                 [검증 대상 정보]
-                - 페르소나: %s
-                - 상품명: %s
-                - 상품 상세 정보: %s
+                %s
+                
+                %s
+                
                 - 제안된 채널: %s
                 - 제안된 발송 시간: %s
                 - 전략 수립 근거: %s
                 
                 [검증 기준]
                 1. **논리적 일관성:** 제안된 채널과 시간이 페르소나의 라이프스타일과 상품 특성에 부합하는가?
-                2. **구매 전환 가능성:** 이 전략이 실제로 고객의 구매를 유도할 수 있는 설득력 있는 접근인가?
+                2. **구매 전환 가능성:** 이 전략이 실제로 구매 전환에 효과적인지 판단해.
                 3. **법적 준수 여부:** 발송 시간이 대한민국 정보통신망법상 허용된 시간(08:00 ~ 21:00) 내에 있는가?
                 
                 [출력 요구사항]
@@ -78,7 +81,7 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
                 - 전략에 문제가 있거나 개선이 필요하다면 validation을 'fail'로 설정하고, failureReason에 그 이유를 구체적으로 명시해. (반드시 한국어로 작성)
                 
                 {format}
-                """, persona, product, productInfo, channel, sendTime, strategyReason);
+                """, persona.toString(), product.toString(), channel, sendTime, strategyReason);
 
         //==LLM 사용==//
         ValidationResponse response = chatClient.prompt()

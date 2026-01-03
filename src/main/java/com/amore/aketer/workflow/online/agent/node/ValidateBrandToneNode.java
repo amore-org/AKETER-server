@@ -1,5 +1,7 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.domain.enums.ChannelType;
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
@@ -37,12 +39,11 @@ public class ValidateBrandToneNode implements AsyncNodeAction<MessageState> {
 
         String brand = nvl(state.getBrand());
         String purpose = nvl(state.getPurpose());
-        String channel = nvl(state.getChannel());
+        ChannelType channel = state.getChannel();
 
         String brandGuidelines = nvl(state.getBrandGuidelines());
 
-        String product = nvl(state.getProduct());
-        String productInfo = nvl(state.getProductInformation());
+        ItemState product = state.getItem();
 
         String title = nvl(state.getMessageTitle());
         String body = nvl(state.getMessageBody());
@@ -99,9 +100,7 @@ public class ValidateBrandToneNode implements AsyncNodeAction<MessageState> {
                 - purpose: %s
                 - channel: %s
                 
-                [상품 정보(참고)]
-                - product: %s
-                - productInformation: %s
+                %s
                 
                 [검증 대상 메시지]
                 - title: %s
@@ -111,7 +110,7 @@ public class ValidateBrandToneNode implements AsyncNodeAction<MessageState> {
                 """.formatted(
                 guidelineSection,
                 brand, purpose, channel,
-                product, productInfo,
+                product.toString(),
                 title, body
         );
 

@@ -1,7 +1,9 @@
 package com.amore.aketer.workflow.online.agent.node;
 
 import com.amore.aketer.domain.enums.ChannelType;
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
@@ -52,9 +54,8 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
     @Override
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
-        String persona = state.getPersona();
-        String product = state.getProduct();
-        String productInfo = state.getProductInformation();
+        PersonaState persona = state.getPersona();
+        ItemState item = state.getItem();
         List<String> failureReasons = state.getDeliveryStrategyFailureReasons();
 
         // 서버 시간과 관계없이 한국 시간(KST) 기준으로 현재 시간 생성
@@ -99,12 +100,12 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                         - sendTime은 반드시 **ISO 8601 형식**을 지켜줘. (예: 2025-12-30T14:00:00+09:00)
                         - reason에는 선택한 채널과 시간이 왜 구매 전환에 효과적인지 논리적으로 설명해. 페르소나와 상품 정보 간의 연관성을 반드시 포함해. (반드시 한국어로 작성할 것)
                         
-                        페르소나: %s
-                        상품명: %s
-                        상품 상세 정보: %s
+                        %s
+                        
+                        %s
                         
                         {format}
-                        """, now, feedbackPrompt, persona, product, productInfo);
+                        """, now, feedbackPrompt, persona.toString(), item.toString());
 
         //==LLM 사용==//
         DeliveryStrategyResponse response = chatClient.prompt()
@@ -113,7 +114,7 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                 .entity(converter);
 
         return CompletableFuture.completedFuture(Map.of(
-                MessageState.CHANNEL, response.channel().name(),
+                MessageState.CHANNEL, response.channel(),
                 MessageState.SEND_TIME, parseTime(response.sendTime()),
                 MessageState.STRATEGY_REASON, response.reason()
         ));

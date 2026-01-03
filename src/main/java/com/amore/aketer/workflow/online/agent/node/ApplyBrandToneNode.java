@@ -1,6 +1,9 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.domain.enums.ChannelType;
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.springframework.ai.chat.client.ChatClient;
@@ -30,14 +33,15 @@ public class ApplyBrandToneNode implements AsyncNodeAction<MessageState> {
     ) {}
 
     @Override
-    public CompletableFuture<Map<String, Object>> apply(MessageState state) {
+    public CompletableFuture<Map<String, Object>> apply(MessageState state) { System.out.println(">>> Node: " + this.getClass().getSimpleName());
 
         // ===== 입력 읽기 =====
-        String brand = nvl(state.getBrand());
         String purpose = nvl(state.getPurpose());
-        String channel = nvl(state.getChannel());
-        String product = nvl(state.getProduct());
-        String productInfo = nvl(state.getProductInformation());
+        ChannelType channel = state.getChannel();
+        ItemState item = state.getItem();
+        String brand = state.getBrand(); // 브랜드명 추가
+
+        // TODO: "/amore/brand/브랜드명.txt" 파일 읽어와서 가이드라인에 추가
         String brandGuidelines = nvl(state.getBrandGuidelines());
 
         String draftTitle = nvl(state.getMessageTitle());
@@ -76,7 +80,7 @@ public class ApplyBrandToneNode implements AsyncNodeAction<MessageState> {
         // ===== 프롬프트 =====
         String prompt = """
                 너는 아모레퍼시픽의 브랜드 카피라이터야.
-                아래의 '초안 메시지'를 주어진 '브랜드 톤 가이드라인'에 맞게 다듬어 최종 문구를 만들어.
+                아래의 '초안 메시지'를 주어진 '브랜드 톤 가이드라인'과 '페르소나', '상품 정보'에 맞게 다듬어 최종 문구를 만들어.
                 
                 [목표]
                 - 초안의 핵심 정보(상품/혜택/CTA)는 유지하되, 문체/어조/표현을 브랜드 톤에 맞게 정교화
@@ -98,8 +102,7 @@ public class ApplyBrandToneNode implements AsyncNodeAction<MessageState> {
                 - channel: %s
                 
                 [상품 정보(참고)]
-                - product: %s
-                - productInformation: %s
+                %s
                 
                 [초안 메시지]
                 - draftTitle: %s
@@ -110,7 +113,7 @@ public class ApplyBrandToneNode implements AsyncNodeAction<MessageState> {
                 guidelineSection,
                 feedbackSection,
                 brand, purpose, channel,
-                product, productInfo,
+                item.toString(),
                 draftTitle, draftBody
         );
 

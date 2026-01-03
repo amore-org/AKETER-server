@@ -1,6 +1,8 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
@@ -35,12 +37,11 @@ public class ValidateDraftMessageNode implements AsyncNodeAction<MessageState> {
     @Override
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
 
-        String persona = nvl(state.getPersona());
-        String product = nvl(state.getProduct());
-        String productInfo = nvl(state.getProductInformation());
+        PersonaState persona = state.getPersona();
+        ItemState item = state.getItem();
 
         String purpose = nvl(state.getPurpose());
-        String channel = nvl(state.getChannel());
+        String channel = state.getChannel() != null ? state.getChannel().name() : "";
 
         String title = nvl(state.getMessageTitle());
         String body = nvl(state.getMessageBody());
@@ -93,9 +94,10 @@ public class ValidateDraftMessageNode implements AsyncNodeAction<MessageState> {
                 - 각 violations는 '무엇이 문제인지'가 분명한 한 문장
                 
                 [입력]
-                persona: %s
-                product: %s
-                productInformation: %s
+                %s
+                
+                %s
+                
                 purpose: %s
                 channel: %s
                 
@@ -105,7 +107,7 @@ public class ValidateDraftMessageNode implements AsyncNodeAction<MessageState> {
                 
                 {format}
                 """.formatted(
-                persona, product, productInfo,
+                persona.toString(), item.toString(),
                 purpose, channel,
                 title, body
         );

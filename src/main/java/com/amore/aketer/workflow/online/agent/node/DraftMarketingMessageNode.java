@@ -1,6 +1,9 @@
 package com.amore.aketer.workflow.online.agent.node;
 
+import com.amore.aketer.domain.enums.ChannelType;
+import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
+import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
@@ -47,10 +50,9 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
     @Override
     public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         //==LLM에 필요한 데이터 준비==//
-        String persona = state.getPersona();
-        String product = state.getProduct();
-        String productInfo = state.getProductInformation();
-        String channel = state.getChannel();
+        PersonaState persona = state.getPersona();
+        ItemState product = state.getItem();
+        ChannelType channel = state.getChannel();
         String sendTime = state.getSendTime() != null ? state.getSendTime().toString() : "미정";
         List<String> failureReasons = state.getDraftMessageFailureReasons();
 
@@ -70,13 +72,14 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
         //==프롬프트==//
         String prompt = String.format("""
                         너는 아모레퍼시픽의 전문 카피라이터야.
-                        주어진 '페르소나', '상품명', '상품 상세 정보', 그리고 '발송 채널'과 '발송 시간'을 고려하여,
+                        주어진 '페르소나', '상품 정보', 그리고 '발송 채널'과 '발송 시간'을 고려하여,
                         고객의 마음을 사로잡을 수 있는 매력적인 **마케팅 메시지(제목/본문)**를 작성해.
                         
                         [입력 정보]
-                        - 페르소나: %s
-                        - 상품명: %s
-                        - 상품 상세 정보: %s
+                        %s
+                        
+                        %s
+                        
                         - 발송 채널: %s
                         - 발송 시간: %s
                         
@@ -96,7 +99,7 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
                         - rationale: 왜 이렇게 작성했는지에 대한 논리적 근거 (한국어로 작성).
                         
                         {format}
-                        """, persona, product, productInfo, channel, sendTime, feedbackPrompt);
+                        """, persona.toString(), product.toString(), channel, sendTime, feedbackPrompt);
 
         //==LLM 사용==//
         DraftMessageResponse response = chatClient.prompt()
@@ -106,7 +109,8 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
 
         return CompletableFuture.completedFuture(Map.of(
                 MessageState.MESSAGE_TITLE, response.title(),
-                MessageState.MESSAGE_BODY, response.body()
+                MessageState.MESSAGE_BODY, response.body(),
+                MessageState.DRAFT_REASON, response.rationale()
         ));
     }
 }
