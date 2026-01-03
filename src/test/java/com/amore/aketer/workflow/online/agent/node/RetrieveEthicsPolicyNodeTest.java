@@ -98,7 +98,7 @@ class RetrieveEthicsPolicyNodeTest {
         log.info("=== 다중 키워드 검색 테스트 ===");
 
         Map<String, Object> initData = new HashMap<>();
-        initData.put(MessageState.ETHICS_POLICY_KEYWORD, "개인정보 보호, 과대광고, 허위표시");
+        initData.put(MessageState.ETHICS_POLICY_KEYWORD, "개인정보 보호랑 과대광고랑 허위표시 조회해줘");
 
         MessageState state = new MessageState(initData);
 
@@ -171,7 +171,7 @@ class RetrieveEthicsPolicyNodeTest {
         log.info("=== 초기화 데이터 검색 테스트 ===");
 
         SearchRequest request = SearchRequest.builder()
-            .query("고객 정보 보호")
+            .query("개인정보")
             .topK(3)
             .similarityThreshold(0.3)
             .build();
