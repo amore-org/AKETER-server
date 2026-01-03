@@ -3,7 +3,6 @@ package com.amore.aketer.workflow.online.agent.node;
 import com.amore.aketer.domain.enums.ChannelType;
 import com.amore.aketer.workflow.online.agent.state.ItemState;
 import com.amore.aketer.workflow.online.agent.state.MessageState;
-import com.amore.aketer.workflow.online.agent.state.PersonaState;
 import lombok.RequiredArgsConstructor;
 import org.bsc.langgraph4j.action.AsyncNodeAction;
 import org.springframework.ai.chat.client.ChatClient;
@@ -33,8 +32,7 @@ public class ApplyBrandToneNode implements AsyncNodeAction<MessageState> {
     ) {}
 
     @Override
-    public CompletableFuture<Map<String, Object>> apply(MessageState state) { System.out.println(">>> Node: " + this.getClass().getSimpleName());
-
+    public CompletableFuture<Map<String, Object>> apply(MessageState state) {
         // ===== 입력 읽기 =====
         String purpose = nvl(state.getPurpose());
         ChannelType channel = state.getChannel();
