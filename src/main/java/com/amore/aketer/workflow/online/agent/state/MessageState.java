@@ -1,5 +1,6 @@
 package com.amore.aketer.workflow.online.agent.state;
 
+import com.amore.aketer.domain.enums.ChannelType;
 import org.bsc.langgraph4j.state.AgentState;
 import org.bsc.langgraph4j.state.Channel;
 import org.bsc.langgraph4j.state.Channels;
@@ -25,6 +26,7 @@ public class MessageState extends AgentState {
 	// 메시지 생성 노드 결과물
 	public static final String MESSAGE_TITLE = "messageTitle";
 	public static final String MESSAGE_BODY = "messageBody";
+    public static final String DRAFT_REASON = "draftReason";
 
 	// docs
 	public static final String BRAND_GUIDELINES = "brandGuidelines";
@@ -45,11 +47,12 @@ public class MessageState extends AgentState {
 		Map.entry(ITEM, Channels.base(ItemState::new)),
 		Map.entry(BRAND, Channels.base(() -> "")),
 		Map.entry(PURPOSE, Channels.base(() -> "")),
-		Map.entry(CHANNEL, Channels.base(() -> "")),
+		Map.entry(CHANNEL, Channels.base(() -> ChannelType.SMS)),
 		Map.entry(SEND_TIME, Channels.base(() -> LocalDateTime.MIN)),
         Map.entry(STRATEGY_REASON, Channels.base(() -> "")),
 		Map.entry(MESSAGE_TITLE, Channels.base(() -> "")),
 		Map.entry(MESSAGE_BODY, Channels.base(() -> "")),
+        Map.entry(DRAFT_REASON, Channels.base(() -> "")),
 		Map.entry(BRAND_GUIDELINES, Channels.base(() -> "")),
 		Map.entry(ETHICS_POLICY_GUIDELINES, Channels.base(() -> "")),
         Map.entry(VALIDATION, Channels.base(() -> "")),
@@ -63,12 +66,12 @@ public class MessageState extends AgentState {
 	}
 
     // Getters - 초기 입력 값
-    public String getPersona() {
-        return this.<String>value(PERSONA).orElse(null);
+    public PersonaState getPersona() {
+        return this.<PersonaState>value(PERSONA).orElse(null);
     }
 
-    public String getItem() {
-        return this.<String>value(ITEM).orElse(null);
+    public ItemState getItem() {
+        return this.<ItemState>value(ITEM).orElse(null);
     }
 
     public String getBrand() {
@@ -80,8 +83,8 @@ public class MessageState extends AgentState {
     }
 
     // Getters - 적절한 채널, 시간 정하는 노드 결과물
-    public String getChannel() {
-        return this.<String>value(CHANNEL).orElse(null);
+    public ChannelType getChannel() {
+        return this.<ChannelType>value(CHANNEL).orElse(null);
     }
 
     public LocalDateTime getSendTime() {
@@ -99,6 +102,10 @@ public class MessageState extends AgentState {
 
     public String getMessageBody() {
         return this.<String>value(MESSAGE_BODY).orElse(null);
+    }
+
+    public String getDraftReason() {
+        return this.<String>value(DRAFT_REASON).orElse(null);
     }
 
     // Getters - 문서 정보
