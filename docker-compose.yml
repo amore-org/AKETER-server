@@ -1,12 +1,4 @@
 services:
-  chroma:
-    image: chromadb/chroma:0.5.20
-    container_name: aketer-chroma
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/chroma/chroma
-
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
     container_name: aketer-rabbitmq
@@ -34,11 +26,11 @@ services:
       AMORE_DB_NAME: "amore"
       AMORE_DB_USER: "team_ai_app_user"
 
-      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST: "http://chroma"
+      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST: "http://localhost"
       SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT: "8000"
-      SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME: "aketer"
-      SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME: "SpringAiTenant"
-      SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME: "SpringAiDatabase"
+      SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME: "aketer_ethics_policy"
+      SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME: "default_tenant"
+      SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME: "default_database"
       SPRING_AI_VECTORSTORE_CHROMA_INITIALIZE_SCHEMA: "true"
 
       SPRING_RABBITMQ_HOST: "rabbitmq"
@@ -47,9 +39,7 @@ services:
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
     depends_on:
-      - chroma
       - rabbitmq
 
 volumes:
-  chroma_data:
   rabbitmq_data:
