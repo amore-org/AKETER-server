@@ -9,12 +9,15 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.io.Serializable;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonaState {
+public class PersonaState implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String name;
     private String profileText;
@@ -25,7 +28,8 @@ public class PersonaState {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PersonaRepresentativeState {
+    public static class PersonaRepresentativeState implements Serializable {
+        private static final long serialVersionUID = 1L;
         private int rank;
         private AgeBand ageBand;
         private String primaryCategory;

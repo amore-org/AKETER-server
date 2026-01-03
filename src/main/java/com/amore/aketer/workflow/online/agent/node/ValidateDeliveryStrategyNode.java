@@ -54,10 +54,6 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
         String sendTime = state.getSendTime().toString();
         String strategyReason = state.getStrategyReason();
 
-        String personaInfo = (persona != null) ? persona.getProfileText() : "N/A";
-        String productName = (product != null) ? product.getBrandName() : "N/A";
-        String productDetails = (product != null) ? String.format("카테고리: %s, 특징: %s", product.getMajorCategory(), product.getKeyBenefits()) : "N/A";
-
         //==LLM 응답 구조화==/
         BeanOutputConverter<ValidationResponse> converter = new BeanOutputConverter<>(ValidationResponse.class);
 
@@ -67,9 +63,10 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
                 앞서 수립된 '메시지 발송 전략'이 타겟 페르소나와 상품 특성에 비추어 정말 효과적인지 비판적으로 검증해.
                 
                 [검증 대상 정보]
-                - 페르소나: %s
-                - 상품명: %s
-                - 상품 상세 정보: %s
+                %s
+                
+                %s
+                
                 - 제안된 채널: %s
                 - 제안된 발송 시간: %s
                 - 전략 수립 근거: %s
@@ -84,7 +81,7 @@ public class ValidateDeliveryStrategyNode implements AsyncNodeAction<MessageStat
                 - 전략에 문제가 있거나 개선이 필요하다면 validation을 'fail'로 설정하고, failureReason에 그 이유를 구체적으로 명시해. (반드시 한국어로 작성)
                 
                 {format}
-                """, personaInfo, productName, productDetails, channel, sendTime, strategyReason);
+                """, persona.toString(), product.toString(), channel, sendTime, strategyReason);
 
         //==LLM 사용==//
         ValidationResponse response = chatClient.prompt()

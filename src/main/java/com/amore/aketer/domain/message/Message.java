@@ -20,6 +20,6 @@ public class Message extends BaseEntity {
     private String title;
 
     @Lob
-    @Column(name = "body", nullable = false)
+    @Column(name = "body", nullable = false, columnDefinition = "TEXT")
     private String body;
 }

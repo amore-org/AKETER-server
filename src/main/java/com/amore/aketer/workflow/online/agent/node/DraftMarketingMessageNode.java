@@ -56,10 +56,6 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
         String sendTime = state.getSendTime() != null ? state.getSendTime().toString() : "미정";
         List<String> failureReasons = state.getDraftMessageFailureReasons();
 
-        String personaInfo = (persona != null) ? persona.getProfileText() : "N/A";
-        String productName = (product != null) ? product.getBrandName() : "N/A";
-        String productDetails = (product != null) ? String.format("카테고리: %s, 특징: %s", product.getMajorCategory(), product.getKeyBenefits()) : "N/A";
-
         //==LLM 응답 구조화==/
         BeanOutputConverter<DraftMessageResponse> converter = new BeanOutputConverter<>(DraftMessageResponse.class);
 
@@ -76,13 +72,14 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
         //==프롬프트==//
         String prompt = String.format("""
                         너는 아모레퍼시픽의 전문 카피라이터야.
-                        주어진 '페르소나', '상품명', '상품 상세 정보', 그리고 '발송 채널'과 '발송 시간'을 고려하여,
+                        주어진 '페르소나', '상품 정보', 그리고 '발송 채널'과 '발송 시간'을 고려하여,
                         고객의 마음을 사로잡을 수 있는 매력적인 **마케팅 메시지(제목/본문)**를 작성해.
                         
                         [입력 정보]
-                        - 페르소나: %s
-                        - 상품명: %s
-                        - 상품 상세 정보: %s
+                        %s
+                        
+                        %s
+                        
                         - 발송 채널: %s
                         - 발송 시간: %s
                         
@@ -102,7 +99,7 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
                         - rationale: 왜 이렇게 작성했는지에 대한 논리적 근거 (한국어로 작성).
                         
                         {format}
-                        """, personaInfo, productName, productDetails, channel, sendTime, feedbackPrompt);
+                        """, persona.toString(), product.toString(), channel, sendTime, feedbackPrompt);
 
         //==LLM 사용==//
         DraftMessageResponse response = chatClient.prompt()
@@ -110,11 +107,10 @@ public class DraftMarketingMessageNode implements AsyncNodeAction<MessageState> 
                 .call()
                 .entity(converter);
 
-        // TODO: 상품 추천 이유를 recommend reason으로 recommend에 저장
-
         return CompletableFuture.completedFuture(Map.of(
                 MessageState.MESSAGE_TITLE, response.title(),
-                MessageState.MESSAGE_BODY, response.body()
+                MessageState.MESSAGE_BODY, response.body(),
+                MessageState.DRAFT_REASON, response.rationale()
         ));
     }
 }

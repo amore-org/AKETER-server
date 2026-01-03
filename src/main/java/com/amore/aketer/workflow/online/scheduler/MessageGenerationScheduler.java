@@ -77,13 +77,6 @@ public class MessageGenerationScheduler {
                     Map<String, Object> initData = buildInitData(persona, item);
                     MessageState result = messageGraph.execute(initData).join();
 
-                    // 검증 실패 시 스킵
-                    if (!"pass".equalsIgnoreCase(result.getValidation())) {
-                        log.warn("Validation failed for Persona ID: {}, Item ID: {}. Reasons: {}",
-                                persona.getId(), item.getId(), result.getMessageFailureReasons());
-                        continue;
-                    }
-
                     // Message 엔티티 저장
                     Message message = Message.builder()
                             .title(result.getMessageTitle())
@@ -179,6 +172,7 @@ public class MessageGenerationScheduler {
         return switch (channelType) {
             case KAKAO -> user.getKakaoEmail();
             case SMS -> user.getPhoneNumber();
+            case PUSH -> null;
         };
     }
 

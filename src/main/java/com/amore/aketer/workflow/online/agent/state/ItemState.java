@@ -13,12 +13,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.io.Serializable;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemState {
+public class ItemState implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     // Item 엔티티 필드
     private String itemName;

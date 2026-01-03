@@ -58,10 +58,6 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
         ItemState item = state.getItem();
         List<String> failureReasons = state.getDeliveryStrategyFailureReasons();
 
-        String personaInfo = (persona != null) ? persona.getProfileText() : "N/A";
-        String brandName = (item != null) ? item.getBrandName() : "N/A";
-        String itemDetails = (item != null) ? String.format("카테고리: %s, 특징: %s", item.getMajorCategory(), item.getKeyBenefits()) : "N/A";
-
         // 서버 시간과 관계없이 한국 시간(KST) 기준으로 현재 시간 생성
         String now = LocalDateTime.now(KST_ZONE).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
@@ -104,12 +100,12 @@ public class DetermineDeliveryStrategyNode implements AsyncNodeAction<MessageSta
                         - sendTime은 반드시 **ISO 8601 형식**을 지켜줘. (예: 2025-12-30T14:00:00+09:00)
                         - reason에는 선택한 채널과 시간이 왜 구매 전환에 효과적인지 논리적으로 설명해. 페르소나와 상품 정보 간의 연관성을 반드시 포함해. (반드시 한국어로 작성할 것)
                         
-                        페르소나: %s
-                        상품명: %s
-                        상품 상세 정보: %s
+                        %s
+                        
+                        %s
                         
                         {format}
-                        """, now, feedbackPrompt, personaInfo, brandName, itemDetails);
+                        """, now, feedbackPrompt, persona.toString(), item.toString());
 
         //==LLM 사용==//
         DeliveryStrategyResponse response = chatClient.prompt()
