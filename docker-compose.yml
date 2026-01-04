@@ -1,0 +1,52 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: aketer-rabbitmq
+    ports:
+      - "5672:5672"      # AMQP 포트
+      - "15672:15672"    # Management UI 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  app:
+    build: .
+    container_name: aketer-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+      AMORE_DB_HOST: "34.50.1.198"
+      AMORE_DB_PORT: "3306"
+      AMORE_DB_NAME: "amore"
+      AMORE_DB_USER: "team_ai_app_user"
+
+      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT: "8000"
+      SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME: "aketer_ethics_policy"
+      SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME: "default_tenant"
+      SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME: "default_database"
+      SPRING_AI_VECTORSTORE_CHROMA_INITIALIZE_SCHEMA: "true"
+
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+      SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST: "http://aketer-chroma"
+
+    depends_on:
+      - rabbitmq
+    networks:
+      - aketer-batch_aketer-network
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  aketer-batch_aketer-network:
+    external: true

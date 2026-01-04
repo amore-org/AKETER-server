@@ -1,0 +1,87 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${AMORE_DB_HOST:34.50.1.198}:${AMORE_DB_PORT:3306}/${AMORE_DB_NAME:amore}?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=utf8&useUnicode=true
+    username: team_ai_app_user
+    password: ${AMORE_DB_PASSWORD}
+
+  batch:
+    job:
+      enabled: false
+    jdbc:
+        platform: mysql
+        initialize-schema: never
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        prefetch: 10
+        retry:
+          enabled: false
+        default-requeue-rejected: false
+
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 100
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4.1-mini
+          temperature: 0.7
+      embedding:
+        options:
+          model: text-embedding-3-small
+    vectorstore:
+      chroma:
+        client:
+          host: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_HOST:http://aketer-chroma}
+          port: ${SPRING_AI_VECTORSTORE_CHROMA_CLIENT_PORT:8000}
+        tenant-name: ${SPRING_AI_VECTORSTORE_CHROMA_TENANT_NAME:default_tenant}
+        database-name: ${SPRING_AI_VECTORSTORE_CHROMA_DATABASE_NAME:default_database}
+        collection-name: ${SPRING_AI_VECTORSTORE_CHROMA_COLLECTION_NAME:aketer_ethics_policy}
+        initialize-schema: true
+
+aketer:
+  messaging:
+    scheduler:
+      fixed-delay: 30000
+      batch-size: 100
+    retry:
+      max-attempts: 3
+      initial-delay: 60000
+      multiplier: 2.0
+
+  slack:
+    webhook-url: ${SLACK_WEBHOOK_URL}
+    enabled: ${SLACK_ENABLED:true}
+
+  external:
+    kakao:
+      api-url: ${KAKAO_API_URL:https://api.kakao.com}
+      api-key: ${KAKAO_API_KEY:mock-key}
+    sms:
+      api-url: ${SMS_API_URL:https://api.sms-provider.com}
+      api-key: ${SMS_API_KEY:mock-key}
+
+logging:
+  level:
+    org.springframework.batch: INFO
