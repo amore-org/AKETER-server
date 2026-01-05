@@ -6,6 +6,7 @@ import com.amore.aketer.domain.enums.RecommendTargetType;
 import com.amore.aketer.domain.message.MessageReservation;
 import com.amore.aketer.domain.message.MessageReservationRepository;
 import com.amore.aketer.domain.enums.MessageStatus;
+import com.amore.aketer.domain.recommend.Recommend;
 import com.amore.aketer.domain.recommend.RecommendRepository;
 import com.amore.aketer.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -120,11 +121,18 @@ public class MessageReservationService {
             );
         }
 
-        // Recommend 테이블에서 추천 이유 조회
-        String reason = recommendRepository
-                .findByTargetTypeAndTargetId(RecommendTargetType.PERSONA, persona.getId())
-                .map(recommend -> recommend.getRecommendReason())
-                .orElse(null);
+        // Recommend 테이블에서 추천 이유 조회 (persona + item으로 필터링)
+        String reason = null;
+        if (item != null) {
+            reason = recommendRepository
+                    .findByTargetTypeAndTargetIdAndItem_Id(
+                            RecommendTargetType.PERSONA,
+                            persona.getId(),
+                            item.getId()
+                    )
+                    .map(Recommend::getRecommendReason)
+                    .orElse(null);
+        }
 
         return new ReservationDetailResponse(
                 r.getId(),

@@ -12,6 +12,8 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
 
     Optional<Recommend> findByTargetTypeAndTargetId(RecommendTargetType targetType, Long targetId);
 
+    Optional<Recommend> findByTargetTypeAndTargetIdAndItem_Id(RecommendTargetType targetType, Long targetId, Long itemId);
+
     @Query("""
         SELECT r
         FROM Recommend r
